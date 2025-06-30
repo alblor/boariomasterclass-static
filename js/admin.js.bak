@@ -1,0 +1,497 @@
+/**
+ * BoarioMasterclass Admin Dashboard
+ * Manages admin authentication and registration data with backend integration
+ */
+
+// Environment detection for emulator vs production
+const isLocalhost = window.location.hostname === 'localhost' || 
+                   window.location.hostname === '127.0.0.1' ||
+                   window.location.port === '5002';
+
+// Secure logging utility
+function secureLog(...args) {
+    if (isLocalhost) {
+        console.log(...args);
+    }
+}
+
+function secureError(...args) {
+    if (isLocalhost) {
+        console.error(...args);
+    }
+}
+
+// Firebase configuration (reuse from registration.js)
+const firebaseConfig = {
+    apiKey: "demo-api-key",
+    authDomain: "boariomasterclass-web.firebaseapp.com",
+    projectId: "boariomasterclass-web",
+    storageBucket: "boariomasterclass-web.appspot.com",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:demo-app-id"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const functions = firebase.functions();
+
+// Use European region for GDPR compliance
+if (isLocalhost) {
+    // Connect to emulators only when running locally
+    secureLog('🛠️ Development mode: Connecting to Firebase emulators');
+    functions.useEmulator('localhost', 5001);
+} else {
+    // Production mode - connect to actual Firebase services
+    secureLog('🚀 Production mode: Connecting to Firebase services');
+}
+
+/**
+ * Admin Dashboard Handler
+ * Manages admin authentication and registration data
+ */
+class AdminDashboardHandler {
+    constructor() {
+        this.currentPage = 1;
+        this.registrationsPerPage = 20;
+        this.allRegistrations = [];
+        this.filteredRegistrations = [];
+        this.currentUser = null;
+        
+        this.loadingState = document.getElementById('loading-state');
+        this.errorState = document.getElementById('error-state');
+        this.registrationsSection = document.getElementById('registrations-section');
+        this.emptyState = document.getElementById('empty-state');
+        
+        this.init();
+    }
+    
+    async init() {
+        try {
+            // Check admin authentication
+            const adminEmail = this.getAdminEmailFromURL();
+            
+            if (!adminEmail) {
+                this.showError('Email amministratore non specificato nell\'URL. Aggiungere ?admin=your-email@domain.com');
+                return;
+            }
+            
+            this.currentUser = adminEmail;
+            secureLog('🔐 Admin user:', this.currentUser);
+            
+            // Try to fetch data from backend first, fallback to demo data
+            await this.fetchRegistrations();
+            
+        } catch (error) {
+            secureError('Admin dashboard initialization error:', error);
+            this.showError('Errore durante l\'inizializzazione della dashboard');
+        }
+    }
+    
+    getAdminEmailFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('admin');
+    }
+    
+    async fetchRegistrations() {
+        try {
+            console.log('🚀 Attempting to fetch from backend admin page...');
+            
+            // Try to access backend admin page
+            const response = await fetch(`/admin?admin=${encodeURIComponent(this.currentUser)}`);
+            
+            if (response.ok) {
+                // If backend serves HTML, replace entire page content
+                const html = await response.text();
+                if (html.includes('<!DOCTYPE html') || html.includes('<html')) {
+                    console.log('✅ Backend admin page loaded, replacing content');
+                    document.documentElement.innerHTML = html;
+                    return;
+                }
+                
+                // If backend returns JSON data, parse it
+                try {
+                    const data = JSON.parse(html);
+                    if (data.registrations) {
+                        this.allRegistrations = data.registrations;
+                        this.updateDisplay();
+                        return;
+                    }
+                } catch (parseError) {
+                    console.log('Response is not JSON, trying demo mode');
+                }
+            }
+            
+            // Fallback: show demo data for testing
+            console.log('⚠️ Backend unavailable, loading demo data');
+            this.loadDemoData();
+            
+        } catch (error) {
+            console.error('Failed to fetch from backend:', error);
+            console.log('📊 Loading demo data for testing...');
+            this.loadDemoData();
+        }
+    }
+    
+    loadDemoData() {
+        // Demo data for testing the interface
+        this.allRegistrations = [
+            {
+                id: 'demo1',
+                firstName: 'Mario',
+                lastName: 'Rossi',
+                email: 'mario.rossi@example.com',
+                instrument: 'violino',
+                teacherName: 'Claudio Pasceri',
+                status: 'pending',
+                createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                isMinor: false,
+                needsAccommodation: true,
+                codiceFiscale: 'RSSMRA90A01H501U'
+            },
+            {
+                id: 'demo2',
+                firstName: 'Giulia',
+                lastName: 'Bianchi',
+                email: 'giulia.bianchi@example.com',
+                instrument: 'pianoforte',
+                teacherName: 'Luca Trabucchi',
+                status: 'approved',
+                createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+                isMinor: true,
+                needsAccommodation: false,
+                codiceFiscale: 'BNCGLI05M15F205X',
+                parentName: 'Roberto Bianchi'
+            },
+            {
+                id: 'demo3',
+                firstName: 'Alessandro',
+                lastName: 'Verdi',
+                email: 'alessandro.verdi@example.com',
+                instrument: 'canto',
+                teacherName: 'Magdalena Aparta',
+                status: 'rejected',
+                createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+                isMinor: false,
+                needsAccommodation: true,
+                codiceFiscale: 'VRDLSN85C20H501X',
+                moderationReason: 'Posti esauriti per questo strumento'
+            },
+            {
+                id: 'demo4',
+                firstName: 'Sofia',
+                lastName: 'Martini',
+                email: 'sofia.martini@example.com',
+                instrument: 'viola',
+                teacherName: 'Alessia Travaglini',
+                status: 'pending',
+                createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000),
+                isMinor: true,
+                needsAccommodation: true,
+                codiceFiscale: 'MRTSFO07D15F205X',
+                parentName: 'Marco Martini'
+            },
+            {
+                id: 'demo5',
+                firstName: 'Francesco',
+                lastName: 'Romano',
+                email: 'francesco.romano@example.com',
+                instrument: 'chitarra',
+                teacherName: 'Anna Minella',
+                status: 'approved',
+                createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+                isMinor: false,
+                needsAccommodation: false,
+                codiceFiscale: 'RMNFRN88B12H501X'
+            }
+        ];
+        
+        console.log('📊 Demo data loaded:', this.allRegistrations.length, 'registrations');
+        this.updateDisplay();
+    }
+    
+    updateDisplay() {
+        this.hideLoading();
+        this.updateStatistics();
+        this.applyFilters();
+        console.log('✅ Admin dashboard display updated');
+    }
+    
+    updateStatistics() {
+        const stats = {
+            total: this.allRegistrations.length,
+            pending: this.allRegistrations.filter(r => r.status === 'pending').length,
+            approved: this.allRegistrations.filter(r => r.status === 'approved').length,
+            rejected: this.allRegistrations.filter(r => r.status === 'rejected').length
+        };
+        
+        document.getElementById('total-registrations').textContent = stats.total;
+        document.getElementById('pending-registrations').textContent = stats.pending;
+        document.getElementById('approved-registrations').textContent = stats.approved;
+        document.getElementById('rejected-registrations').textContent = stats.rejected;
+        
+        console.log('📊 Statistics updated:', stats);
+    }
+    
+    applyFilters() {
+        const statusFilter = document.getElementById('status-filter').value;
+        const instrumentFilter = document.getElementById('instrument-filter').value;
+        const searchTerm = document.getElementById('search-input').value.toLowerCase();
+        
+        this.filteredRegistrations = this.allRegistrations.filter(registration => {
+            // Status filter
+            if (statusFilter !== 'all' && registration.status !== statusFilter) {
+                return false;
+            }
+            
+            // Instrument filter
+            if (instrumentFilter !== 'all' && registration.instrument !== instrumentFilter) {
+                return false;
+            }
+            
+            // Search filter
+            if (searchTerm) {
+                const searchFields = [
+                    registration.firstName,
+                    registration.lastName,
+                    registration.email,
+                    registration.teacherName,
+                    registration.codiceFiscale
+                ].map(field => field?.toLowerCase() || '');
+                
+                if (!searchFields.some(field => field.includes(searchTerm))) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+        
+        this.currentPage = 1;
+        this.displayRegistrations();
+        
+        console.log('🔍 Filters applied. Showing', this.filteredRegistrations.length, 'of', this.allRegistrations.length, 'registrations');
+    }
+    
+    clearFilters() {
+        document.getElementById('status-filter').value = 'all';
+        document.getElementById('instrument-filter').value = 'all';
+        document.getElementById('search-input').value = '';
+        this.applyFilters();
+        console.log('🧹 Filters cleared');
+    }
+    
+    displayRegistrations() {
+        const startIndex = (this.currentPage - 1) * this.registrationsPerPage;
+        const endIndex = startIndex + this.registrationsPerPage;
+        const pageRegistrations = this.filteredRegistrations.slice(startIndex, endIndex);
+        
+        const tbody = document.getElementById('registrations-tbody');
+        tbody.innerHTML = '';
+        
+        if (pageRegistrations.length === 0) {
+            this.showEmptyState();
+            return;
+        }
+        
+        this.hideEmptyState();
+        
+        pageRegistrations.forEach(registration => {
+            const row = this.createRegistrationRow(registration);
+            tbody.appendChild(row);
+        });
+        
+        this.updatePagination();
+        this.registrationsSection.style.display = 'block';
+    }
+    
+    createRegistrationRow(registration) {
+        const row = document.createElement('tr');
+        row.className = 'registration-row';
+        row.dataset.id = registration.id;
+        
+        const statusClass = `status-${registration.status}`;
+        const minorBadge = registration.isMinor ? '<span class="minor-badge">Minore</span>' : '';
+        const accommodationBadge = registration.needsAccommodation ? ' 🏨' : '';
+        
+        row.innerHTML = `
+            <td>
+                <div class="student-info">${registration.firstName} ${registration.lastName}${minorBadge}</div>
+                <div class="student-meta">${registration.email}${accommodationBadge}</div>
+                ${registration.parentName ? `<div class="student-meta">Genitore: ${registration.parentName}</div>` : ''}
+            </td>
+            <td>
+                <div class="student-info">${this.capitalizeFirst(registration.instrument)}</div>
+                <div class="student-meta">${registration.teacherName}</div>
+            </td>
+            <td>${this.formatDate(registration.createdAt)}</td>
+            <td>
+                <span class="status-badge ${statusClass}">${this.formatStatus(registration.status)}</span>
+                ${registration.moderationReason ? `<div class="student-meta" title="${registration.moderationReason}">💬 Motivazione</div>` : ''}
+            </td>
+            <td class="actions-cell">
+                ${this.createActionButtons(registration)}
+            </td>
+        `;
+        
+        return row;
+    }
+    
+    createActionButtons(registration) {
+        if (registration.status === 'pending') {
+            return `
+                <button class="btn btn-approve" onclick="adminHandler.moderateRegistration('${registration.id}', 'approve')">
+                    ✅ Approva
+                </button>
+                <button class="btn btn-reject" onclick="adminHandler.moderateRegistration('${registration.id}', 'reject')">
+                    ❌ Rifiuta
+                </button>
+            `;
+        } else {
+            const statusIcon = registration.status === 'approved' ? '✅' : '❌';
+            const moderatedBy = registration.moderatedBy || 'Sistema';
+            return `
+                <small>${statusIcon} ${this.formatStatus(registration.status)}</small>
+                <div class="student-meta">da ${moderatedBy}</div>
+            `;
+        }
+    }
+    
+    async moderateRegistration(registrationId, action) {
+        const registration = this.allRegistrations.find(r => r.id === registrationId);
+        if (!registration) {
+            alert('Iscrizione non trovata');
+            return;
+        }
+        
+        const reason = action === 'reject' ? 
+            prompt('Motivo del rifiuto (opzionale):', 'Posti esauriti per questo strumento') : null;
+        
+        try {
+            console.log(`🔄 ${action} registration ${registrationId}`, reason);
+            
+            // Try to call backend moderation function
+            try {
+                const moderateRegistration = functions.httpsCallable('moderateRegistration');
+                const result = await moderateRegistration({
+                    adminEmail: this.currentUser,
+                    registrationId: registrationId,
+                    action: action,
+                    reason: reason
+                });
+                
+                if (result.data.success) {
+                    console.log('✅ Backend moderation successful');
+                    // Update local data
+                    registration.status = action === 'approve' ? 'approved' : 'rejected';
+                    registration.moderationReason = reason;
+                    registration.moderatedBy = this.currentUser;
+                    registration.moderatedAt = new Date();
+                    
+                    this.updateDisplay();
+                    alert(`✅ Iscrizione ${action === 'approve' ? 'approvata' : 'rifiutata'} con successo!`);
+                    return;
+                }
+            } catch (backendError) {
+                console.log('⚠️ Backend moderation failed, updating locally:', backendError.message);
+            }
+            
+            // Fallback: update locally for demo purposes
+            registration.status = action === 'approve' ? 'approved' : 'rejected';
+            registration.moderationReason = reason;
+            registration.moderatedBy = this.currentUser;
+            registration.moderatedAt = new Date();
+            
+            this.updateDisplay();
+            
+            alert(`📝 Iscrizione ${action === 'approve' ? 'approvata' : 'rifiutata'} localmente!\n\n(Nota: Questo è in modalità demo. In produzione, l'azione verrebbe inviata al backend.)`);
+            
+        } catch (error) {
+            console.error('❌ Moderation error:', error);
+            alert('Errore durante l\'operazione: ' + error.message);
+        }
+    }
+    
+    formatDate(date) {
+        return new Date(date).toLocaleDateString('it-IT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    formatStatus(status) {
+        const statusMap = {
+            pending: 'In Attesa',
+            approved: 'Approvata',
+            rejected: 'Rifiutata'
+        };
+        return statusMap[status] || status;
+    }
+    
+    capitalizeFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+    
+    updatePagination() {
+        const totalPages = Math.ceil(this.filteredRegistrations.length / this.registrationsPerPage);
+        
+        document.getElementById('page-info').textContent = `Pagina ${this.currentPage} di ${totalPages}`;
+        document.getElementById('prev-page').disabled = this.currentPage <= 1;
+        document.getElementById('next-page').disabled = this.currentPage >= totalPages;
+    }
+    
+    previousPage() {
+        if (this.currentPage > 1) {
+            this.currentPage--;
+            this.displayRegistrations();
+            console.log('📄 Previous page:', this.currentPage);
+        }
+    }
+    
+    nextPage() {
+        const totalPages = Math.ceil(this.filteredRegistrations.length / this.registrationsPerPage);
+        if (this.currentPage < totalPages) {
+            this.currentPage++;
+            this.displayRegistrations();
+            console.log('📄 Next page:', this.currentPage);
+        }
+    }
+    
+    showError(message) {
+        this.hideLoading();
+        document.getElementById('error-message').textContent = message;
+        this.errorState.style.display = 'block';
+        this.registrationsSection.style.display = 'none';
+        this.emptyState.style.display = 'none';
+    }
+    
+    showEmptyState() {
+        this.registrationsSection.style.display = 'none';
+        this.emptyState.style.display = 'block';
+    }
+    
+    hideEmptyState() {
+        this.emptyState.style.display = 'none';
+    }
+    
+    hideLoading() {
+        this.loadingState.style.display = 'none';
+    }
+    
+    retry() {
+        this.errorState.style.display = 'none';
+        this.loadingState.style.display = 'block';
+        setTimeout(() => this.init(), 1000);
+    }
+}
+
+// Global instance for button clicks
+let adminHandler;
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🎵 BoarioMasterclass Admin Dashboard - Initializing...');
+    adminHandler = new AdminDashboardHandler();
+}); 

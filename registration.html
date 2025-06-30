@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iscrizione - BoarioMasterclass 2025</title>
+    <meta name="description" content="Iscriviti alla BoarioMasterclass 2025 - Masterclass musicale di eccellenza con i migliori maestri">
+    
+    <!-- Immediate theme application to prevent flash -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('boarioMasterclassTheme');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    
+    <!-- Existing site styles -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LcqWOopAAAAAEIJPVGEzh-2vWbPUFTR9ioYhcGj" async defer></script>
+    
+    <!-- Registration specific styles -->
+    <style>
+        /* Loading animation for page entrance */
+        .registration-page {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: pageEnterFromAbove 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) 0.2s forwards;
+        }
+        
+        @keyframes pageEnterFromAbove {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .registration-container {
+            max-width: 900px;
+            margin: 60px auto 60px;
+            padding: 2rem;
+            background: var(--bar-bg-color);
+            border-radius: var(--bar-border-radius);
+            border: var(--bar-contour-thickness) solid var(--gold-main);
+            box-shadow: 0 8px 24px var(--shadow-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            /* Remove position and z-index to avoid Safari stacking issues */
+        }
+        
+        .registration-title {
+            color: var(--gold-main);
+            font-family: var(--heading-font);
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.2), 0 0 15px var(--gold-glow);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            overflow: visible !important;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .form-group label {
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+            font-family: var(--heading-font);
+        }
+        
+        .form-group label.required::after {
+            content: " *";
+            color: #f44336;
+        }
+        
+        /* Standard inputs styling */
+        .form-group input,
+        .form-group textarea {
+            padding: 12px 16px;
+            border: 2px solid var(--gold-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--primary-font);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--gold-main);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold-main) 30%, transparent);
+        }
+        
+        .form-group input.error {
+            border-color: #f44336;
+        }
+        
+        /* Custom Select Dropdown (matching language selector design) */
+        .custom-select-wrapper {
+            position: relative;
+            z-index: auto;
+            /* Prevent stacking context issues */
+            isolation: isolate;
+        }
+        
+        /* When dropdown is active, elevate its wrapper */
+        .custom-select-wrapper.dropdown-active {
+            z-index: 1000 !important;
+        }
+        
+        .custom-select-button {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--gold-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--primary-font);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            text-align: left;
+        }
+        
+        .custom-select-button:hover,
+        .custom-select-button:focus,
+        .custom-select-button[aria-expanded="true"] {
+            outline: none;
+            border-color: var(--gold-main);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold-main) 30%, transparent);
+        }
+        
+        .custom-select-button.error {
+            border-color: #f44336;
+        }
+        
+        .custom-select-button .dropdown-arrow {
+            font-size: 0.7em;
+            color: var(--text-subtle-color);
+            transition: transform 0.3s ease-out, color 0.3s ease;
+            margin-left: 8px;
+        }
+        
+        .custom-select-button:hover .dropdown-arrow,
+        .custom-select-button:focus .dropdown-arrow,
+        .custom-select-button[aria-expanded="true"] .dropdown-arrow {
+            transform: rotate(180deg);
+            color: var(--gold-main);
+        }
+        
+        .custom-select-text {
+            color: var(--text-color);
+            transition: color 0.3s ease;
+        }
+        
+        .custom-select-text.placeholder {
+            color: var(--text-subtle-color);
+        }
+        
+        .custom-select-button:hover .custom-select-text,
+        .custom-select-button:focus .custom-select-text,
+        .custom-select-button[aria-expanded="true"] .custom-select-text {
+            color: var(--gold-main);
+        }
+        
+        .custom-select-menu {
+            list-style: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background-color: var(--bar-bg-color, rgba(255, 255, 255, 0.95));
+            border: 1px solid var(--gold-light, #d9c89b);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 0.5rem 0;
+            margin: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            /* Simplified transform for Safari compatibility */
+            transform: translateY(-5px);
+            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+            /* Remove backdrop filter which can cause Safari issues */
+            background-color: rgba(255, 255, 255, 0.98);
+            z-index: 9999;
+        }
+        
+        .custom-select-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .custom-select-menu li {
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            transition: background-color 0.2s ease, color 0.2s ease;
+            position: relative;
+            z-index: 1;
+            /* Safari fix for menu items */
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+        }
+        
+        .custom-select-menu li:hover {
+            background-color: rgba(196, 168, 107, 0.2);
+            color: var(--gold-main, #c4a86b);
+        }
+        
+        .custom-select-menu li.selected {
+            font-weight: bold;
+            color: var(--gold-main, #c4a86b);
+            background-color: rgba(196, 168, 107, 0.1);
+        }
+        
+        /* Modern Checkbox Styling with animations */
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1.5rem;
+            background: color-mix(in srgb, var(--gold-main) 5%, transparent);
+            border-radius: 12px;
+            border: 1px solid color-mix(in srgb, var(--gold-light) 30%, transparent);
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-group:hover {
+            background: color-mix(in srgb, var(--gold-main) 8%, transparent);
+            border-color: color-mix(in srgb, var(--gold-light) 50%, transparent);
+            transform: translateY(-1px);
+        }
+        
+        .custom-checkbox {
+            position: relative;
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .custom-checkbox input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .checkbox-visual {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--gold-light);
+            border-radius: 6px;
+            background: var(--bg-color);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checkbox-visual::after {
+            content: '';
+            width: 10px;
+            height: 6px;
+            border: 2px solid white;
+            border-top: none;
+            border-right: none;
+            transform: rotate(-45deg) scale(0);
+            transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) 0.1s;
+        }
+        
+        .custom-checkbox input[type="checkbox"]:checked + .checkbox-visual {
+            background: var(--gold-main);
+            border-color: var(--gold-main);
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold-main) 20%, transparent);
+        }
+        
+        .custom-checkbox input[type="checkbox"]:checked + .checkbox-visual::after {
+            transform: rotate(-45deg) scale(1);
+        }
+        
+        .custom-checkbox input[type="checkbox"]:hover + .checkbox-visual,
+        .custom-checkbox input[type="checkbox"]:focus + .checkbox-visual {
+            border-color: var(--gold-main);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold-main) 15%, transparent);
+        }
+        
+        .checkbox-group label {
+            margin: 0;
+            line-height: 1.5;
+            cursor: pointer;
+            font-family: var(--primary-font);
+            transition: color 0.3s ease;
+        }
+        
+        .checkbox-group:hover label {
+            color: var(--gold-dark);
+        }
+        
+        .checkbox-group label a {
+            color: var(--gold-main);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .checkbox-group label a:hover {
+            color: var(--gold-dark);
+            text-decoration: underline;
+        }
+        
+        .submit-button {
+            background: var(--gold-main);
+            color: white;
+            padding: 16px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            font-family: var(--primary-font);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 2rem auto 0;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .submit-button:hover:not(:disabled) {
+            background: var(--gold-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px color-mix(in srgb, var(--gold-main) 40%, transparent);
+        }
+        
+        .submit-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .submit-button .spinner {
+            display: none;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .submit-button.loading .spinner {
+            display: block;
+        }
+        
+        @keyframes spin {
+            0% { transform: translateY(-50%) rotate(0deg); }
+            100% { transform: translateY(-50%) rotate(360deg); }
+        }
+        
+        /* Professional Information Notice */
+        .info-notice {
+            background: linear-gradient(135deg, color-mix(in srgb, var(--gold-main) 10%, transparent), color-mix(in srgb, var(--gold-light) 15%, transparent));
+            border: 1px solid var(--gold-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            box-shadow: 0 2px 8px color-mix(in srgb, var(--gold-main) 20%, transparent);
+            transition: all 0.3s ease;
+        }
+        
+        .info-notice:hover {
+            box-shadow: 0 4px 12px color-mix(in srgb, var(--gold-main) 30%, transparent);
+            transform: translateY(-1px);
+        }
+        
+        .info-notice-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            margin-top: 0.2rem;
+        }
+        
+        .info-notice-content h3 {
+            color: var(--gold-dark);
+            font-family: var(--heading-font);
+            font-size: 1.1rem;
+            margin: 0 0 0.5rem 0;
+            font-weight: bold;
+        }
+        
+        .info-notice-content p {
+            color: var(--text-color);
+            font-family: var(--primary-font);
+            line-height: 1.6;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        /* Enhanced Error Message Banner */
+        .error-message {
+            background: linear-gradient(135deg, #ffebee, #fce4ec);
+            border: 1px solid #e57373;
+            border-left: 4px solid #d32f2f;
+            color: #c62828;
+            padding: 1.2rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+            box-shadow: 0 2px 8px rgba(211, 47, 47, 0.15);
+            position: relative;
+            animation: slideInFromTop 0.4s ease-out;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .error-message::before {
+            content: "⚠️";
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+        
+        .error-message .error-title {
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-family: var(--heading-font);
+        }
+        
+        .error-message .error-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .error-message .error-list li {
+            padding: 0.3rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .error-message .error-list li::before {
+            content: "•";
+            color: #d32f2f;
+            font-weight: bold;
+            position: absolute;
+            left: 0.5rem;
+        }
+        
+        /* Enhanced Success Message */
+        .success-message {
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
+            border: 1px solid #81c784;
+            border-left: 4px solid #2e7d32;
+            color: #2e7d32;
+            padding: 1.2rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.15);
+            animation: slideInFromTop 0.4s ease-out;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .success-message::before {
+            content: "✅";
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-subtle-color);
+        }
+        
+        .required-note {
+            color: var(--text-subtle-color);
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-family: var(--primary-font);
+        }
+        
+        .recaptcha-note {
+            font-size: 0.8rem;
+            color: var(--text-subtle-color);
+            text-align: center;
+            margin-top: 1rem;
+            font-family: var(--primary-font);
+        }
+        
+        /* Hide native select elements */
+        .form-group select {
+            display: none;
+        }
+        
+        /* Email Validation Result Styling */
+        .email-validation-result {
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: var(--primary-font);
+            animation: slideInFromTop 0.3s ease-out;
+            position: relative;
+        }
+        
+        .email-validation-result.valid {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+        
+        .email-validation-result.valid::before {
+            content: "✅";
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+        
+        .email-validation-result.invalid {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .email-validation-result.invalid::before {
+            content: "⚠️";
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+        
+        .email-validation-result.warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .email-validation-result.warning::before {
+            content: "ℹ️";
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+        
+        .email-validation-result.checking {
+            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+            border: 1px solid #d6d8db;
+            color: #495057;
+            border-left: 4px solid #6c757d;
+        }
+        
+        .email-validation-result.checking::before {
+            content: "🔄";
+            font-size: 1rem;
+            margin-right: 0.5rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        .email-validation-details {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .email-validation-details .detail-item {
+            display: inline-block;
+            margin-right: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .email-validation-details .detail-item .label {
+            font-weight: bold;
+        }
+        
+        .email-validation-suggestion {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(23, 162, 184, 0.1);
+            border: 1px solid rgba(23, 162, 184, 0.3);
+            border-radius: 6px;
+            color: #0c5460;
+        }
+        
+        .email-validation-suggestion::before {
+            content: "💡 ";
+            font-size: 0.9rem;
+        }
+        
+        .email-validation-suggestion .suggestion-link {
+            color: #17a2b8;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .email-validation-suggestion .suggestion-link:hover {
+            text-decoration: underline;
+        }
+
+        
+        @media (max-width: 768px) {
+            .registration-container {
+                margin: 100px 1rem 40px;
+                padding: 1.5rem;
+            }
+            
+            .registration-title {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .custom-select-menu {
+                max-height: 150px;
+            }
+        }
+        
+        /* Sleek Logo Circle Design */
+        .logo-circle-container {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 1000;
+            display: flex;
+            gap: 15px;
+            opacity: 0;
+            animation: fadeInSlowly 1.2s ease-out 0.3s forwards;
+        }
+        
+        @keyframes fadeInSlowly {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo-circle {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: var(--bar-bg-color);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 2px solid var(--gold-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 8px 24px var(--shadow-color);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--gold-main) 0%, var(--gold-light) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 50%;
+        }
+        
+        .logo-circle:hover {
+            transform: scale(1.1);
+            border-color: var(--gold-light);
+            box-shadow: 0 12px 32px var(--shadow-color), 0 0 0 4px rgba(196, 168, 107, 0.2);
+        }
+        
+        .logo-circle:hover::before {
+            opacity: 0.1;
+        }
+        
+        .logo-image {
+            width: 42px;
+            height: 42px;
+            z-index: 1;
+            transition: transform 0.3s ease;
+            filter: brightness(0) saturate(100%) invert(60%) sepia(13%) saturate(1487%) hue-rotate(358deg) brightness(90%) contrast(88%);
+        }
+        
+        .logo-circle:hover .logo-image {
+            transform: scale(1.05);
+        }
+        
+        .theme-toggle-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--bar-bg-color);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 2px solid var(--gold-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 20px var(--shadow-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theme-toggle-circle:hover {
+            transform: scale(1.05);
+            border-color: var(--gold-main);
+            box-shadow: 0 8px 24px var(--shadow-color), 0 0 0 3px rgba(196, 168, 107, 0.15);
+        }
+        
+        .theme-toggle-circle img {
+            width: 26px;
+            height: 26px;
+            transition: all 0.3s ease;
+            position: absolute;
+            filter: brightness(0) saturate(100%) invert(60%) sepia(13%) saturate(1487%) hue-rotate(358deg) brightness(90%) contrast(88%);
+        }
+        
+        .theme-sun-icon {
+            opacity: 0;
+        }
+        
+        .theme-moon-icon {
+            opacity: 1;
+        }
+        
+        [data-theme="dark"] .theme-sun-icon {
+            opacity: 1;
+        }
+        
+        [data-theme="dark"] .theme-moon-icon {
+            opacity: 0;
+        }
+        
+        /* Enhanced dark mode visibility */
+        [data-theme="dark"] .theme-toggle-circle {
+            border-color: var(--gold-main);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        [data-theme="dark"] .theme-toggle-circle img {
+            filter: brightness(0) saturate(100%) invert(90%) sepia(10%) saturate(200%) hue-rotate(20deg) brightness(110%) contrast(90%);
+        }
+        
+        [data-theme="dark"] .logo-circle {
+            border-color: var(--gold-light);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        [data-theme="dark"] .logo-image {
+            filter: brightness(0) saturate(100%) invert(90%) sepia(10%) saturate(200%) hue-rotate(20deg) brightness(110%) contrast(90%);
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .logo-circle-container {
+                top: 20px;
+                left: 20px;
+                gap: 10px;
+            }
+            
+            .logo-circle {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .logo-image {
+                width: 34px;
+                height: 34px;
+            }
+            
+            .theme-toggle-circle {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .theme-toggle-circle img {
+                width: 22px;
+                height: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-background"></div>
+    
+    <!-- Sleek Logo Circle -->
+    <div class="logo-circle-container">
+        <a href="/" class="logo-circle" aria-label="Torna alla home">
+            <img src="logo.svg" alt="BoarioMasterclass" class="logo-image">
+        </a>
+        <button id="theme-toggle-btn" class="theme-toggle-circle" aria-label="Cambia tema">
+            <img src="images/svgs/sun-icon.svg" alt="Light" class="theme-sun-icon">
+            <img src="images/svgs/moon-icon.svg" alt="Dark" class="theme-moon-icon">
+        </button>
+    </div>
+
+    <div class="site-container registration-page">
+        <div class="registration-container">
+            <h1 class="registration-title">Iscrizione BoarioMasterclass 2025</h1>
+            
+            <!-- Professional Information Notice -->
+            <div class="info-notice">
+                <div class="info-notice-icon">ℹ️</div>
+                <div class="info-notice-content">
+                    <h3>Informazioni Importanti</h3>
+                    <p>Per garantire il funzionamento della piattaforma in modo equo e trasparente, è necessario fornire informazioni autentiche e veritiere. Tutti i dati inseriti saranno verificati e dovranno corrispondere ai documenti ufficiali. La falsificazione di informazioni comporterà l'esclusione automatica dal processo di selezione.</p>
+                </div>
+            </div>
+            
+            <div class="required-note">
+                I campi contrassegnati con * sono obbligatori
+            </div>
+            
+            <!-- Unified Error/Success Messages -->
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+            
+            <form id="registration-form" novalidate>
+                <div class="form-grid">
+                    <!-- Personal Information -->
+                    <div class="form-group">
+                        <label for="firstName" class="required">Nome</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName" class="required">Cognome</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email" class="required">Email</label>
+                        <input type="email" id="email" name="email" required>
+                        <div id="email-validation-result" class="email-validation-result" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone" class="required">Telefono</label>
+                        <input type="tel" id="phone" name="phone" required placeholder="+39 123 456 7890">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="birthDate" class="required">Data di Nascita</label>
+                        <input type="date" id="birthDate" name="birthDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="birthPlace" class="required">Luogo di Nascita</label>
+                        <input type="text" id="birthPlace" name="birthPlace" required>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="codiceFiscale" class="required">Codice Fiscale</label>
+                        <input type="text" id="codiceFiscale" name="codiceFiscale" 
+                               pattern="[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]"
+                               title="Inserisci un codice fiscale valido (es: RSSMRA80A01H501U)"
+                               style="text-transform: uppercase;" required>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="homeAddress" class="required">Indirizzo di Residenza</label>
+                        <input type="text" id="homeAddress" name="homeAddress" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="homeCity" class="required">Città di Residenza</label>
+                        <input type="text" id="homeCity" name="homeCity" required>
+                    </div>
+                    
+                    <!-- Parent Information (shown conditionally for minors) -->
+                    <div class="form-group" id="parentGroup" style="display: none;">
+                        <label for="parentName" class="required">Nome del Genitore/Tutore</label>
+                        <input type="text" id="parentName" name="parentName">
+                    </div>
+                    
+                    <!-- Musical Information with Custom Select -->
+                    <div class="form-group">
+                        <label for="instrument" class="required">Strumento</label>
+                        <div class="custom-select-wrapper">
+                            <button type="button" class="custom-select-button" id="instrument-select" aria-expanded="false" aria-controls="instrument-menu">
+                                <span class="custom-select-text placeholder">Seleziona strumento...</span>
+                                <span class="dropdown-arrow">▾</span>
+                            </button>
+                            <ul class="custom-select-menu" id="instrument-menu" role="menu">
+                                <!-- Options will be populated dynamically -->
+                            </ul>
+                        </div>
+                        <select id="instrument" name="instrument" required>
+                            <option value="">Seleziona strumento...</option>
+                            <!-- Options will be populated dynamically from /data/teachers-schedule.json -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="teacherName" class="required">Docente Preferito</label>
+                        <div class="custom-select-wrapper">
+                            <button type="button" class="custom-select-button" id="teacher-select" aria-expanded="false" aria-controls="teacher-menu">
+                                <span class="custom-select-text placeholder">Seleziona docente...</span>
+                                <span class="dropdown-arrow">▾</span>
+                            </button>
+                            <ul class="custom-select-menu" id="teacher-menu" role="menu">
+                                <!-- Options will be populated dynamically -->
+                            </ul>
+                        </div>
+                        <select id="teacherName" name="teacherName" required>
+                            <option value="">Seleziona docente...</option>
+                            <!-- Options will be populated dynamically from /data/teachers-schedule.json -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="accompanistPieces">Brani per Accompagnatore (opzionale)</label>
+                        <textarea id="accompanistPieces" name="accompanistPieces" rows="3"
+                                  placeholder="Elenca i brani che necessitano di accompagnamento al pianoforte..."></textarea>
+                    </div>
+                    
+                    <!-- Accommodation with Custom Select -->
+                    <div class="form-group">
+                        <label for="needsAccommodation" class="required">Necessità Alloggio</label>
+                        <div class="custom-select-wrapper">
+                            <button type="button" class="custom-select-button" id="accommodation-select" aria-expanded="false" aria-controls="accommodation-menu">
+                                <span class="custom-select-text placeholder">Seleziona...</span>
+                                <span class="dropdown-arrow">▾</span>
+                            </button>
+                            <ul class="custom-select-menu" id="accommodation-menu" role="menu">
+                                <!-- Options will be populated dynamically -->
+                            </ul>
+                        </div>
+                        <select id="needsAccommodation" name="needsAccommodation" required>
+                            <option value="">Seleziona...</option>
+                            <option value="true">Sì, ho bisogno di alloggio</option>
+                            <option value="false">No, ho già alloggio</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Consent Checkboxes with Custom Styling -->
+                <div class="checkbox-group">
+                    <div class="custom-checkbox">
+                        <input type="checkbox" id="hasReadRegulations" name="hasReadRegulations" required>
+                        <div class="checkbox-visual"></div>
+                    </div>
+                    <label for="hasReadRegulations" class="required">
+                        Ho letto e accetto il <a href="BoarioMasterClass_Regolamento.pdf" target="_blank">regolamento della masterclass</a>
+                    </label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="custom-checkbox">
+                        <input type="checkbox" id="consentDataProcessing" name="consentDataProcessing" required>
+                        <div class="checkbox-visual"></div>
+                    </div>
+                    <label for="consentDataProcessing" class="required">
+                        Acconsento al trattamento dei miei dati personali per la gestione dell'iscrizione, in conformità al GDPR
+                    </label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="custom-checkbox">
+                        <input type="checkbox" id="consentMarketing" name="consentMarketing">
+                        <div class="checkbox-visual"></div>
+                    </div>
+                    <label for="consentMarketing">
+                        Acconsento a ricevere comunicazioni promozionali su future iniziative (opzionale)
+                    </label>
+                </div>
+                
+                <button type="submit" class="submit-button" id="submit-btn">
+                    <span class="spinner"></span>
+                    Invia Iscrizione
+                </button>
+                
+                <div class="recaptcha-note">
+                    Questo sito è protetto da reCAPTCHA e si applicano la <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> e i <a href="https://policies.google.com/terms" target="_blank">Termini di Servizio</a> di Google.
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+    
+    <!-- Registration Form JavaScript -->
+    <script src="js/registration.js"></script>
+    
+    <!-- Theme Toggle Functionality -->
+    <script>
+        // Theme toggle functionality
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const themeIconSun = themeToggleBtn ? themeToggleBtn.querySelector('.theme-sun-icon') : null;
+        const themeIconMoon = themeToggleBtn ? themeToggleBtn.querySelector('.theme-moon-icon') : null;
+        const htmlElement = document.documentElement;
+
+        function updateThemeIcons(theme) {
+            if (themeIconSun && themeIconMoon) {
+                // Theme icons are now handled via CSS classes, no need for inline styles
+                // The CSS will automatically show/hide icons based on [data-theme] attribute
+            }
+        }
+
+        function applyTheme(theme) {
+            htmlElement.setAttribute('data-theme', theme);
+            updateThemeIcons(theme);
+            localStorage.setItem('boarioMasterclassTheme', theme);
+        }
+
+        if (themeToggleBtn) {
+            const savedTheme = localStorage.getItem('boarioMasterclassTheme');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+            themeToggleBtn.addEventListener('click', () => {
+                applyTheme(htmlElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+            });
+        }
+    </script>
+</body>
+</html> 

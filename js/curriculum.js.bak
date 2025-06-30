@@ -1,0 +1,454 @@
+// js/curriculum.js - Teacher curriculum and bio modal functionality
+
+// Environment detection for secure logging
+const isDevelopment = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.port === '5002';
+
+// Secure logging utilities - only logs in development mode
+function secureLog(...args) {
+    if (isDevelopment) {
+        console.log(...args);
+    }
+}
+
+function secureWarn(...args) {
+    if (isDevelopment) {
+        console.warn(...args);
+    }
+}
+
+function secureError(...args) {
+    if (isDevelopment) {
+        console.error(...args);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Add curriculum bio modal functionality
+    const bioModal = document.getElementById('bio-modal');
+    const bioModalTitle = document.getElementById('bio-modal-title');
+    const bioContent = document.getElementById('bio-content');
+    const bioModalClose = document.getElementById('bio-modal-close');
+    const bioButtons = document.querySelectorAll('.bio-btn');
+    const bioModalContent = document.querySelector('.bio-modal-content');
+    
+    // Predefined curriculum data with multilingual support
+    const curriculumData = {
+        "http://www.cmt.education/CMT/Magdalena_Aparta.html": {
+            it: `
+            <p class="curriculum-intro"><strong>Soprano e violoncellista polacca, apprezzata per la sua versatilità e ricco repertorio operistico e sacro</strong></p>
+            <p>Nata a <strong>Lodz (Polonia)</strong>, ha compiuto gli studi musicali nella sua città, diplomandosi in <strong>violoncello e canto</strong>. Ha inoltre conseguito presso il <strong>Conservatorio di Milano</strong> i diplomi di <strong>Canto lirico e Musica vocale da camera</strong> nonché la <strong>laurea di secondo livello in Canto</strong>. Sempre a Milano ha frequentato il <strong>corso post-diploma biennale con specializzazione in musica antica</strong>.</p>
+            <p>In qualità di <strong>artista del coro/solista</strong> ha lavorato con il <strong>Teatro Grande</strong> della sua città per sei anni (1985 – 1991) con un contratto a tempo indeterminato. Ha poi collaborato con il <strong>coro da camera del Conservatorio di Milano</strong> (direttore <strong>Bruno Casoni</strong>), Il <strong>coro della Rai di Milano</strong> (direttori <strong>Giovanni Andreoli e Marco Balderi</strong>), Il <strong>coro della Rai di Torino</strong> (direttore <strong>Lorenzo Bizzarri</strong>), il <strong>coro Civico da Camera di Milano</strong> (direttore <strong>Mino Bordignon</strong>), Il <strong>coro dei Pomeriggi Musicali</strong> (direttore <strong>Bruno Casoni</strong>), Il <strong>coro della Verdi di Milano</strong> (direttore <strong>Romano Gandolfi</strong>), dell'<strong>Aslico</strong> e del <strong>Teatro Coccia di Novara</strong>.</p>
+            <p>È attiva sia nel <strong>repertorio lirico</strong> che in quello <strong>sacro e da camera</strong>. Numerosi i ruoli solistici teatrali da lei interpretati in opere quali <strong>Le Nozze di Figaro</strong>, <strong>L'oca del Cairo di Mozart</strong>, <strong>Il Parnaso confuso di Gluck</strong>, <strong>Il Matrimonio segreto di Cimarosa</strong>, <strong>Rigoletto di Verdi</strong>, <strong>Cavalleria Rusticana di Mascagni</strong>, <strong>Bohème</strong>, <strong>Tabarro e Madama Butterfly di Puccini</strong>, <strong>The delle tre di Negri</strong>. Ha cantato come solista numerosi capolavori del <strong>repertorio sacro</strong>: la <strong>Messa S.Aloysii di Michael Haydn</strong> accompagnata con l'orchestra da camera di Bergamo e il coro polifonico di Mosca (1992) lo <strong>Stabat Mater di Pergolesi</strong> al Convegno Internazionale delle Religioni di Riva del Garda (1993), la <strong>Petite Messe Solennelle di Rossini</strong> a Trieste nel Santuario Monte Grisa (1997) e numerose volte il <strong>Requiem di Mozart</strong> nelle Chiese di Santa Maria del Carmine e di S. Marco a Milano, <strong>Nisi Dominus e Stabat Mater di Vivaldi</strong> con le orchestre di Parigi (Nouvele d'Europe diretta da N. Krause), e orchestra Agimus di Milano (diretta da Ennio Cominetti), collabora inoltre con l'<strong>orchestra di Vienna</strong> (Vienner Konzert Verein) e l'orchestra <strong>"Balcanica"</strong>.</p>
+            `,
+            en: `
+            <p class="curriculum-intro"><strong>Polish soprano and cellist acclaimed for her versatility across opera, sacred and chamber repertoire</strong></p>
+            <p>Born in <strong>Lodz (Poland)</strong>, she completed her musical studies in her city, graduating in <strong>cello and singing</strong>. She also obtained diplomas in <strong>Lyric Singing and Chamber Vocal Music</strong> at the <strong>Milan Conservatory</strong>, as well as a <strong>second-level degree in Singing</strong>. In Milan, she attended the <strong>two-year post-diploma course specializing in early music</strong>.</p>
+            <p>As a <strong>choir artist/soloist</strong>, she worked with the <strong>Teatro Grande</strong> of her city for six years (1985-1991) with a permanent contract. She then collaborated with the <strong>chamber choir of the Milan Conservatory</strong> (director <strong>Bruno Casoni</strong>), the <strong>RAI choir of Milan</strong> (directors <strong>Giovanni Andreoli and Marco Balderi</strong>), the <strong>RAI choir of Turin</strong> (director <strong>Lorenzo Bizzarri</strong>), the <strong>Civic Chamber choir of Milan</strong> (director <strong>Mino Bordignon</strong>), the <strong>Pomeriggi Musicali choir</strong> (director <strong>Bruno Casoni</strong>), the <strong>Verdi choir of Milan</strong> (director <strong>Romano Gandolfi</strong>), the <strong>Aslico</strong> and the <strong>Teatro Coccia of Novara</strong>.</p>
+            <p>She is active in both <strong>operatic</strong> and <strong>sacred and chamber repertoire</strong>. She has performed numerous theatrical solo roles in operas such as <strong>Le Nozze di Figaro</strong>, <strong>L'oca del Cairo by Mozart</strong>, <strong>Il Parnaso confuso by Gluck</strong>, <strong>Il Matrimonio segreto by Cimarosa</strong>, <strong>Rigoletto by Verdi</strong>, <strong>Cavalleria Rusticana by Mascagni</strong>, <strong>Bohème</strong>, <strong>Tabarro and Madama Butterfly by Puccini</strong>, and <strong>The delle tre by Negri</strong>. As a soloist, she has performed numerous masterpieces of the <strong>sacred repertoire</strong>: the <strong>Messa S.Aloysii by Michael Haydn</strong> accompanied by the chamber orchestra of Bergamo and the polyphonic choir of Moscow (1992), the <strong>Stabat Mater by Pergolesi</strong> at the International Meeting of Religions in Riva del Garda (1993), the <strong>Petite Messe Solennelle by Rossini</strong> in Trieste at the Monte Grisa Sanctuary (1997) and numerous times <strong>Mozart's Requiem</strong> in the Churches of Santa Maria del Carmine and S. Marco in Milan, <strong>Nisi Dominus and Stabat Mater by Vivaldi</strong> with the orchestras of Paris (Nouvele d'Europe directed by N. Krause), and Agimus orchestra of Milan (directed by Ennio Cominetti). She also collaborates with the <strong>Vienna orchestra</strong> (Vienner Konzert Verein) and the <strong>"Balcanica" orchestra</strong>.</p>
+            `,
+            teacherName: "Magdalena_Aparta"
+        },
+        "http://cmt.education/CMT/Alessia_Travaglini.html": {
+            it: `
+            <p class="curriculum-intro"><strong>Musicista italiana specialista di Viola da gamba, attiva in ambito barocco e cameristico internazionale</strong></p>
+            <p><strong>Unico diploma tradizionale di Viola da gamba</strong> nella storia del <strong>Conservatorio "Giuseppe Verdi" di Milano</strong> (classe di <strong>Nanneke Schaap</strong>), conseguito nel <strong>2016</strong>.</p>
+            <p>Laureata nel <strong>2018, con 110 e lode</strong>, presso il <strong>Conservatorio "Luca Marenzio" di Brescia</strong> (classe di <strong>Claudia Pasetto</strong>).</p>
+            <p>Grazie alla <strong>mobilità Erasmus</strong> ha inoltre studiato in <strong>Olanda</strong> al <strong>"Royal Conservatorium" dell'Aia</strong> (classe di <strong>Mieneke van Der Velden e Philippe Pierlot</strong>), anni accademici 2015/16 e in <strong>Francia</strong> al <strong>"Conservatoire National Supérieur de Musique et Danse" di Lione</strong> (classe di <strong>Marianne Muller</strong>), anno accademico 2017/18.</p>
+            <p>Ha seguito <strong>Masterclass</strong> con <strong>Wieland Kuijken</strong>, <strong>Roberto Gini</strong>, <strong>Rodney Prada</strong>, <strong>Juan Manuel Quintana</strong>, <strong>Paolo Pandolfo</strong>, <strong>Sarah Cunningham</strong> e <strong>Hille Perl</strong>.</p>
+            <p>Negli ultimi dieci anni ha effettuato <strong>numerosi concerti e registrazioni</strong> in Italia, Francia e Olanda con varie formazioni di <strong>musica antica</strong>.</p>
+            <p>Ha suonato per diversi anni con l'ensemble <strong>"La Silva" di Amsterdam</strong> in numerosi progetti tra Milano (Basiliche di <strong>San Fedele</strong>, <strong>Sant'Ambrogio</strong> e <strong>San Marco</strong>), Parma (<strong>Palazzo Farnese</strong>), Amsterdam (<strong>Olde Kerke</strong>, <strong>Keizersgrachtkerk</strong>, <strong>Orgel Park</strong> e <strong>Kunstenaars Collectief</strong>) e Haarlem (<strong>Doopsgezinde Kerk</strong>).</p>
+            `,
+            en: `
+            <p class="curriculum-intro"><strong>Italian Viola da gamba specialist active on the international early-music scene</strong></p>
+            <p><strong>Only traditional Viola da gamba diploma</strong> in the history of the <strong>"Giuseppe Verdi" Conservatory of Milan</strong> (class of <strong>Nanneke Schaap</strong>), obtained in <strong>2016</strong>.</p>
+            <p>Graduated in <strong>2018 with highest honors</strong> from the <strong>"Luca Marenzio" Conservatory of Brescia</strong> (class of <strong>Claudia Pasetto</strong>).</p>
+            <p>Thanks to <strong>Erasmus mobility</strong>, she also studied in the <strong>Netherlands</strong> at the <strong>"Royal Conservatorium" in The Hague</strong> (class of <strong>Mieneke van Der Velden and Philippe Pierlot</strong>) during the 2015/16 academic year, and in <strong>France</strong> at the <strong>"Conservatoire National Supérieur de Musique et Danse" in Lyon</strong> (class of <strong>Marianne Muller</strong>) during the 2017/18 academic year.</p>
+            <p>She has attended <strong>masterclasses</strong> with <strong>Wieland Kuijken</strong>, <strong>Roberto Gini</strong>, <strong>Rodney Prada</strong>, <strong>Juan Manuel Quintana</strong>, <strong>Paolo Pandolfo</strong>, <strong>Sarah Cunningham</strong>, and <strong>Hille Perl</strong>.</p>
+            <p>Over the last ten years, she has performed <strong>numerous concerts and made recordings</strong> in Italy, France, and the Netherlands with various <strong>early music ensembles</strong>.</p>
+            <p>She played for several years with the <strong>"La Silva" ensemble from Amsterdam</strong> in numerous projects between Milan (Basilicas of <strong>San Fedele</strong>, <strong>Sant'Ambrogio</strong>, and <strong>San Marco</strong>), Parma (<strong>Palazzo Farnese</strong>), Amsterdam (<strong>Olde Kerke</strong>, <strong>Keizersgrachtkerk</strong>, <strong>Orgel Park</strong>, and <strong>Kunstenaars Collectief</strong>), and Haarlem (<strong>Doopsgezinde Kerk</strong>).</p>
+            `,
+            teacherName: "Alessia_Travaglini"
+        },
+        "http://www.cmt.education/CMT/Luca_Trabucchi.html": {
+            it: `
+            <p class="curriculum-intro"><strong>Chitarrista italiano pluripremiato, noto per la sua brillante carriera concertistica e didattica</strong></p>
+            <p>Nato nel 1965 a Sondrio, si è diplomato con il massimo dei voti e la lode presso la Scuola Civica di Musica di Milano sotto la guida del M° Roberto Da Barp, e presso il Conservatorio G. Verdi di Milano. Parallelamente agli studi musicali ha frequentato la Facoltà di Scienze Politiche, laureandosi presso l'Università Statale di Milano.</p>
+            <p>Ha vinto il primo premio in numerosi concorsi nazionali ed internazionali in Italia ed all'estero, fra cui il Concorso di Salon de Provence (Francia) nel 1986, il Concorso "Savona in Musica" nel 1994 e il Torneo Internazionale di Musica (TIM), a Roma nel 1995. Nel 1989 ha vinto il secondo premio al Concorso Nazionale "Galilei" di Firenze e nel 1994 e 1995 il secondo premio (con primo non assegnato) al "Palma d'oro" di Finale Ligure.</p>
+            <p>Ha frequentato corsi di perfezionamento come allievo effettivo tenuti dai maestri Ghiglia (Accademia Chigiana di Siena, Chiesa (Corsi della G.M.I. di Bassano del Grappa) e Grondona (Istituto Musicale "Benvenuti" di Conegliano Veneto, dove ha ottenuto il diploma di merito).</p>
+            <p>Svolge attività concertistica come solista e in varie formazioni da camera per importanti associazioni e festival in molte città d'Italia (Milano, Roma, Perugia, Genova, Foggia, L'Aquila, Pescara, Barletta, Verbania, Savona ecc.) e all'estero (Germania, Francia, Svizzera, Slovenia, Ungheria, Croazia, Spagna, Brasile, Arabia Saudita).</p>
+            `,
+            en: `
+            <p class="curriculum-intro"><strong>Award-winning Italian guitarist renowned for both performance and pedagogy</strong></p>
+            <p>Born in 1965 in Sondrio, he graduated with highest honors from the Civic School of Music in Milan under the guidance of Maestro Roberto Da Barp, and from the G. Verdi Conservatory in Milan. Alongside his musical studies, he attended the Faculty of Political Sciences, graduating from the State University of Milan.</p>
+            <p>He won first prize in numerous national and international competitions in Italy and abroad, including the Salon de Provence Competition (France) in 1986, the "Savona in Musica" Competition in 1994, and the International Music Tournament (TIM) in Rome in 1995. In 1989 he won second prize at the "Galilei" National Competition in Florence, and in 1994 and 1995 the second prize (with first prize not awarded) at the "Palma d'oro" in Finale Ligure.</p>
+            <p>He attended advanced courses as an active student with masters Ghiglia (Accademia Chigiana of Siena), Chiesa (G.M.I. Courses in Bassano del Grappa), and Grondona (Musical Institute "Benvenuti" of Conegliano Veneto, where he obtained a diploma of merit).</p>
+            <p>He performs concerts as a soloist and in various chamber ensembles for important associations and festivals in many Italian cities (Milan, Rome, Perugia, Genoa, Foggia, L'Aquila, Pescara, Barletta, Verbania, Savona, etc.) and abroad (Germany, France, Switzerland, Slovenia, Hungary, Croatia, Spain, Brazil, Saudi Arabia).</p>
+            `,
+            teacherName: "Luca_Trabucchi"
+        },
+        "http://www.cmt.education/CMT/Liliana_Pesaresi.html": {
+            it: `
+            <p class="curriculum-intro"><strong>Chitarrista italiana di fama, con ampia esperienza concertistica e didattica nei conservatori</strong></p>
+            <p>Iniziata la sua formazione musicale con Michele De Angelis, prosegue gli studi presso il Conservatorio "L. D'Annunzio" di Pescara (tra i suoi maestri, Beppe Ficara) sotto la guida di Letizia Guerra, diplomandosi con il massimo dei voti e la lode.</p>
+            <p>In parallelo agli studi musicali si laurea in Economia e Commercio (corso quadriennale) presso l'Università degli Studi " G. d'Annunzio" di Pescara.</p>
+            <p>Prosegue nella sua formazione artistica frequentando le Masterclass di Stefano Grondona a Ponte in Valtellina (So) e i Corsi Estivi dell'Accademia Chigiana di Siena con Oscar Ghiglia, per due stagioni consecutive.</p>
+            <p>E' vincitrice del primo Concorso Nazionale a Cattedre per l'insegnamento della chitarra nei conservatori ed è titolare della cattedra di chitarra presso il Conservatorio "A.Scontrino" di Trapani.</p>
+            <p>Consegue il diploma superiore di secondo livello di chitarra (biennio) presso il Conservatorio "G.Verdi" di Milano con il massimo dei voti e la lode, studiando trascrizione e prassi esecutiva della musica barocca con Paolo Cherici e tiorba e pratica del basso continuo con Francesca Torelli.</p>
+            `,
+            en: `
+            <p class="curriculum-intro"><strong>Renowned Italian guitarist with extensive performance and conservatory teaching experience</strong></p>
+            <p>Starting her musical training with Michele De Angelis, she continued her studies at the "L. D'Annunzio" Conservatory of Pescara (among her teachers, Beppe Ficara) under the guidance of Letizia Guerra, graduating with highest honors.</p>
+            <p>Parallel to her musical studies, she graduated in Economics and Commerce (four-year course) at the "G. d'Annunzio" University of Pescara.</p>
+            <p>She continued her artistic training by attending the Masterclasses of Stefano Grondona in Ponte in Valtellina (So) and the Summer Courses of the Accademia Chigiana of Siena with Oscar Ghiglia, for two consecutive seasons.</p>
+            <p>She is the winner of the first National Competition for Chairs for teaching guitar in conservatories and holds the chair of guitar at the "A.Scontrino" Conservatory of Trapani.</p>
+            <p>She obtained the second-level superior diploma in guitar (two-year course) at the "G.Verdi" Conservatory of Milan with highest honors, studying transcription and performance practice of baroque music with Paolo Cherici, and theorbo and basso continuo practice with Francesca Torelli.</p>
+            `,
+            teacherName: "Liliana_Pesaresi"
+        },
+        "http://www.cmt.education/CMT/Alessandro_Travaglini.html": {
+            it: `
+            <p class="curriculum-intro"><strong>Clarinet­tista italiano, interprete di strumenti storici e docente presso il Conservatorio G. Verdi di Milano</strong></p>
+            <p>Laureato in clarinetto e clarinetto storico e composizione al Conservatorio "G. Verdi" di Milano. Si è dedicato soprattutto alla musica da camera in tutte le formazioni, ma il suo principale interesse è rivolto alle esecuzioni con strumenti d'epoca. La sua orchestra, "I Virtuosi del Teatro alla Scala" diretta da Corrado Rovaris, ha inciso per Sony Classical.</p>
+            <p>È componente dell'Orchestra del Teatro alla Scala per il clarinetto piccolo e collabora con le principali orchestre italiane. È membro fondatore del "Quartet Spiritus" e del "Quintetto Spiritus" ed è attualmente il clarinettista dell'"Ottetto Classico Italiano" di Luca Franzetti, con cui recentemente ha eseguito a Milano il celebre ottetto di Franz Schubert.</p>
+            <p>La sua passione per gli strumenti antichi lo ha portato ad approfondire lo studio e la pratica del clarinetto storico, esibendosi anche con strumenti originali d'epoca. È docente di clarinetto principale presso il Conservatorio "G. Verdi" di Milano e tiene regolarmente masterclass di clarinetto e clarinetto storico in Italia e all'estero.</p>
+            `,
+            en: `
+            <p class="curriculum-intro"><strong>Italian clarinettist, period-instrument performer and professor at Milan's G. Verdi Conservatory</strong></p>
+            <p>Graduated in clarinet, historical clarinet and composition at the "G. Verdi" Conservatory of Milan. He has devoted himself mainly to chamber music in all formations, but his main interest is in performances with period instruments. His orchestra, "I Virtuosi del Teatro alla Scala" conducted by Corrado Rovaris, has recorded for Sony Classical.</p>
+            <p>He is a member of the Teatro alla Scala Orchestra for the piccolo clarinet and collaborates with the main Italian orchestras. He is a founding member of the "Quartet Spiritus" and the "Quintetto Spiritus" and is currently the clarinetist of Luca Franzetti's "Ottetto Classico Italiano", with whom he recently performed Franz Schubert's famous octet in Milan.</p>
+            <p>His passion for ancient instruments has led him to deepen the study and practice of the historical clarinet, also performing with original period instruments. He is a principal clarinet professor at the "G. Verdi" Conservatory of Milan and regularly holds masterclasses in clarinet and historical clarinet in Italy and abroad.</p>
+            `,
+            teacherName: "Alessandro_Travaglini"
+        },
+        "http://www.cmt.education/CMT/Gianmaria_Bellisario.html": {
+            it: `
+            <p class="curriculum-intro"><strong>Violinista italiano poliedrico, attivo come solista, camerista e didatta in importanti festival internazionali</strong></p>
+            <p>Gianmaria Bellisario inizia giovanissimo lo studio del violino e, dopo essersi diplomato brillantemente, si perfeziona con docenti di fama internazionale come Kato Havas, Corrado Romano, Marco Fornaciari, e prosegue gli studi in Giappone, dove vince una borsa di studio presso la prestigiosa Toho Gakuen Academy (unico violinista italiano) e in Svizzera, all'Accademia de Musique di Sion nella classe del celebre V. Pikayzen.</p>
+
+            <p>La sua attivita' artistica prevede collaborazioni con prestigiose Orchestre da Camera come la United Europe Chamber Orchestra, (con la quale si esibisce fin dal primo concerto di Inaugurazione, partecipando poi a diverse tournee' all'estero e alla registrazione di numerosi Cd, ricoprendo il ruolo di Prima Parte), Ensamble Musica Rara, Camerata Ducale, Gli Archi della Scala e con importanti Orchestre Sinfoniche (Orchestra Sinfonica di Savona, presso cui ricopre il ruolo di Prima Parte, Orchestra Toscanini di Parma, Orchestra G.Cantelli, Orchestra Sinfonica d'Italia, Orchestra Internazionale, Orchestra Verdi) producendosi in concerti in Italia e all'estero (Francia, Germania, Svizzera, Austria, Libano, Thailandia, Malaysia) sotto la conduzione di Direttori come A. Francis, R. Chailly, V. Ashkenazy,O. Caetani, Lu Jia, Y.Sado, F.M. Bressan e con interpreti del calibro di L. Pavarotti, K. Ricciarelli, C. Gasdia, A. Bocelli, Montserrat Caballe', M. Quarta, D. Nordio.</p>
+
+            <p>Dal 1999 e' stato invitato a suonare al Tiroler Festspiele di Erl (Austria), Festival ideato e diretto dal M.Gustav Kuhn, per l'esecuzione di sensazionali produzioni ("Beethoven Delirium"; Wagner: 24 Stunden-Ring, etc).</p>
+
+            <p>Si esibisce regolarmente in Recital per Violino e Pianoforte, col Duo Periekon (Violino e Flauto) e in concerti per Quartetto d'archi: col "Quartetto Bellisario" ha eseguito numerose composizioni in prima assoluta e col B4StringQuartet ha esplorato le aree comuni della Musica Colta e Musica Tradizionale, affiancando al repertorio classico musica balcanica, kletzmer, jazz, country, pop. Grande successo hanno avuto, tra le altre, le performance del B4StringQuartet al Festival MITO e al "EstivaLugano" Festival.</p>
+
+            <p>Notevole successo ha avuto col Trio Antares (Violino, Flauto e Pianoforte), per il quale compositori come Danieli, Salvaneschi, Di Marino hanno scritto e dedicato alcuni loro lavori. Inoltre, il Trio Antares e' risultato vincitore del Primo Premio alla seconda edizione del "Premio Dario Fo 2006" a Porto Valtravaglia.</p>
+
+            <p>Frequenti sono le sue performance per Violino Solo, con un repertorio che spazia dal Barocco alla Musica Contemporanea, (festival "le 5 Giornate di Milano per la Musica Contemporanea"), con particolare attenzione alla riscoperta, ricerca e approfondimento di brani particolari proposti con un linguaggio personale e fortemente comunicativo.</p>
+
+            <p>Nel Settembre del 2004 collabora con l'Associazione Sant'Eustorgio Musica per l'organizzazione del Concerto (in Programma i 24 Capricci di Paganini) e della Masterclass tenuti dal M° Viktor Pikayzen ad Arcore e di una serie di eventi collaterali: mostra di Liuteria, mostra di Editoria, incontro-dibattito sull"Influenza della Scuola Russa nello sviluppo della Tecnica Violinistica".</p>
+
+            <p>Nel Novembre dello stesso anno tiene, con straordinario successo, per l'Universita' Popolare di Monza, una serie di conferenze su "L'Avvenimento del Genio nella Storia del Violino": tali lezioni-concerto, in cui a una dettagliata analisi storico-stilistica segue l'esecuzione di brani dal vivo, si intitolano: "Vivaldi: un affresco in Musica, immagini ed effetti nelle Quattro Stagioni", "Bach: L'orizzonte trascendente tra Creazione e Mistero", "Paganini: la sfida suprema come immagine del destino".</p>
+
+            <p>Molto attivo anche nel campo della didattica, ha insegnato Violino presso la Libera Scuola R.Steiner di Milano, i Corsi Popolari Serali di Musica presso il Conservatorio di Milano, la Scuola di Musica "S.Cappellotto" di Arcore e, come supplente, in alcune Scuole Medie Statali ad Indirizzo Musicale; attualmente e' Docente di Violino della Scuola "Monguzzi" di Biassono e della Civica Scuola di Musica "Citta' di Lesmo".</p>
+
+            <p>"Gemellando" queste ultime, ha dato vita alla NeverSeen Orchestra, Orchestra di Studenti unica nel suo genere per organico e repertorio: con questa Orchestra, in qualita' di insegnante e direttore, ha preparato e portato in scena "La Bora e il Ragioniere", operina per Voce Recitante e Orchestra di A. Bellisario su testo di G.Rodari, riscuotendo un prestigioso successo con la pubblicazione di un Dvd dello spettacolo. La NeverSeen Orchestra e' spesso invitata a suonare in importanti sedi (Teatro Binario 7, Sala Maddalena-Monza, Sala delle Scuderie-Arcore, Sala Civica-Biassono, Teatro SanFelice-Milano, Svizzera, etc) raccogliendo sempre notevoli consensi e significativi apprezzamenti, come in occasione del I Concorso di Musica di Insieme a Civenna.</p>
+
+            <p>La NeverSeenOrchestra si e' esibita con enorme successo anche presso la Chiesa di Santa Maria dei Miracoli in Piazza del Popolo a Roma. Un video tratto da un concerto della NeverSeenOrchestra ha registrato su YouTube piu' di 220.000 visualizzazioni (Requiem for a Dream).</p>
+
+            <p>Nel Settembre 2008 e' risultato Primo, per l'Insegnamento di Violino, nella Graduatoria Triennale per soli titoli (Qualificazione per incarichi di Docente) presso la Scuola Civica di Musica di Cinisello Balsamo.</p>
+
+            <p>Ha scritto e pubblicato per la "Gioiosa Editrice" il libro "10 Studi Contemporanei per Violino Solo", che ha suscitato il riconoscimento e l'apprezzamento di insigni violinisti. Uno di questi studi, inoltre, e' stato inserito come programma d'esame nel Syllabus 2004-2009 del prestigioso Trinity College di Londra; per "Berben" ha pubblicato "Due Violini Raccontano, 10 duetti per gli studenti di violino dei primi anni".</p>
+
+            <p>Da Maggio 2015 e' Direttore e Presidente della Civica Scuola di Musica "Citta' di Lesmo". Nell'Agosto 2015, e' stato invitato a tenere, insieme a Docenti di fama internazionale, due conferenze sulla Didattica Violinistica, una Performance e una Masterclass a Penang, in Malaysia, per la Prima Edizione dell' International String Convention per l'Asia, a cura della Violin Teacher Association.</p>
+
+            <p>Gianmaria, che suona un violino Riccardo Antoniazzi del 1905, interpreta il ruolo di violinista moderno come "ricercatore" nello sterminato campo della conoscenza violinistica.</p>
+            `,
+            en: `
+            <p class="curriculum-intro"><strong>Versatile Italian violinist performing as soloist, chamber musician and educator at major international festivals</strong></p>
+            <p>Gianmaria Bellisario began studying the violin at a very young age and, after graduating with honors, he perfected his skills with internationally renowned teachers such as Kato Havas, Corrado Romano, and Marco Fornaciari. He continued his studies in Japan, where he won a scholarship at the prestigious Toho Gakuen Academy (the only Italian violinist) and in Switzerland, at the Académie de Musique in Sion in the class of the famous V. Pikayzen.</p>
+
+            <p>His artistic activity includes collaborations with prestigious Chamber Orchestras such as the United Europe Chamber Orchestra (with which he has performed since the first inaugural concert, participating in several tours abroad and in the recording of numerous CDs, holding the role of First Part), Ensemble Musica Rara, Camerata Ducale, Gli Archi della Scala, and with important Symphony Orchestras (Symphony Orchestra of Savona, where he holds the role of First Part, Toscanini Orchestra of Parma, Orchestra G.Cantelli, Symphony Orchestra of Italy, International Orchestra, Verdi Orchestra), performing concerts in Italy and abroad (France, Germany, Switzerland, Austria, Lebanon, Thailand, Malaysia) under the direction of conductors such as A. Francis, R. Chailly, V. Ashkenazy, O. Caetani, Lu Jia, Y.Sado, F.M. Bressan and with performers of the caliber of L. Pavarotti, K. Ricciarelli, C. Gasdia, A. Bocelli, Montserrat Caballe, M. Quarta, D. Nordio.</p>
+
+            <p>Since 1999, he has been invited to perform at the Tiroler Festspiele in Erl (Austria), a festival conceived and directed by M.Gustav Kuhn, for the execution of sensational productions ("Beethoven Delirium"; Wagner: 24 Stunden-Ring, etc).</p>
+
+            <p>He regularly performs in Recitals for Violin and Piano, with the Duo Periekon (Violin and Flute) and in concerts for String Quartet: with the "Quartetto Bellisario" he has performed numerous compositions in world premiere and with the B4StringQuartet he has explored the common areas of Classical Music and Traditional Music, combining Balkan, Klezmer, jazz, country, and pop music with the classical repertoire. Among others, the performances of the B4StringQuartet at the MITO Festival and the "EstivaLugano" Festival have been very successful.</p>
+
+            <p>He has achieved notable success with the Trio Antares (Violin, Flute, and Piano), for which composers such as Danieli, Salvaneschi, and Di Marino have written and dedicated some of their works. Furthermore, the Trio Antares was the winner of the First Prize at the second edition of the "Premio Dario Fo 2006" in Porto Valtravaglia.</p>
+
+            <p>His solo violin performances are frequent, with a repertoire ranging from Baroque to Contemporary Music (festival "le 5 Giornate di Milano per la Musica Contemporanea"), with particular attention to the rediscovery, research, and in-depth study of particular pieces proposed with a personal and highly communicative language.</p>
+
+            <p>In September 2004, he collaborated with the Sant'Eustorgio Musica Association for the organization of the Concert (featuring the 24 Caprices of Paganini) and the Masterclass held by Maestro Viktor Pikayzen in Arcore, as well as a series of collateral events: exhibition of Lutherie, exhibition of Publishing, discussion meeting on "The Influence of the Russian School in the development of Violin Technique".</p>
+
+            <p>In November of the same year, he held, with extraordinary success, for the Popular University of Monza, a series of conferences on "The Advent of Genius in the History of the Violin": these lecture-concerts, in which a detailed historical-stylistic analysis is followed by the live performance of pieces, are entitled: "Vivaldi: a fresco in Music, images and effects in the Four Seasons", "Bach: The transcendent horizon between Creation and Mystery", "Paganini: the supreme challenge as an image of destiny".</p>
+
+            <p>Also very active in the field of teaching, he has taught Violin at the R.Steiner Free School in Milan, the Evening Popular Music Courses at the Milan Conservatory, the "S.Cappellotto" Music School in Arcore and, as a substitute, in some State Middle Schools with Musical Direction; he is currently a Violin Teacher at the "Monguzzi" School in Biassono and at the Civic School of Music "Città di Lesmo".</p>
+
+            <p>By "twinning" these latter institutions, he gave life to the NeverSeen Orchestra, a Student Orchestra unique in its kind for its composition and repertoire: with this Orchestra, as a teacher and director, he prepared and staged "La Bora e il Ragioniere", a small opera for Reciting Voice and Orchestra by A. Bellisario on a text by G.Rodari, achieving prestigious success with the publication of a DVD of the show. The NeverSeen Orchestra is often invited to perform in important venues (Teatro Binario 7, Sala Maddalena-Monza, Sala delle Scuderie-Arcore, Sala Civica-Biassono, Teatro SanFelice-Milan, Switzerland, etc.), always gathering considerable consensus and significant appreciation, as on the occasion of the First Ensemble Music Competition in Civenna.</p>
+
+            <p>The NeverSeenOrchestra has also performed with enormous success at the Church of Santa Maria dei Miracoli in Piazza del Popolo in Rome. A video from a concert of the NeverSeenOrchestra has registered more than 220,000 views on YouTube (Requiem for a Dream).</p>
+
+            <p>In September 2008, he ranked First for Violin Teaching in the Three-year Ranking by qualifications only (Qualification for Teaching positions) at the Civic School of Music of Cinisello Balsamo.</p>
+
+            <p>He wrote and published the book "10 Contemporary Studies for Solo Violin" for "Gioiosa Editrice", which has received recognition and appreciation from distinguished violinists. One of these studies was also included as an examination program in the 2004-2009 Syllabus of the prestigious Trinity College in London; for "Berben" he published "Due Violini Raccontano, 10 duetti per gli studenti di violino dei primi anni" (Two Violins Tell, 10 duets for early-years violin students).</p>
+
+            <p>Since May 2015, he has been the Director and President of the Civic School of Music "Città di Lesmo". In August 2015, he was invited, along with internationally renowned faculty, to give two conferences on Violin Teaching, a Performance, and a Masterclass in Penang, Malaysia, for the First Edition of the International String Convention for Asia, curated by the Violin Teacher Association.</p>
+
+            <p>Gianmaria, who plays a Riccardo Antoniazzi violin from 1905, interprets the role of modern violinist as a "researcher" in the vast field of violin knowledge.</p>
+            `,
+            teacherName: "Gianmaria_Bellisario"
+        },
+        "http://www.cmt.education/CMT/Anna_Minella.html": {
+            it: `
+            <p class="curriculum-intro"><strong>Violinista vincitrice di prestigiosi concorsi e già primo violino dell'Orchestra RAI di Torino</strong></p>
+            <p>Anna Minella ha studiato al Conservatorio di Torino e si è perfezionata con Riccardo Brengola all'Accademia Chigiana di Siena e con Corrado Romano a Ginevra. Ha vinto il Concorso Internazionale di violino "Viotti" di Vercelli e il Concorso "Città di Stresa".</p>
+            <p>È stata primo violino di spalla dell'Orchestra Sinfonica Nazionale della RAI di Torino e primo violino del Quartetto RAI. Ha collaborato come primo violino con importanti orchestre italiane e ha tenuto tournée in Europa, America, Australia e Giappone. È stata docente di violino presso il Conservatorio di Torino.</p>
+            <p>Il suo repertorio spazia dal barocco alla musica contemporanea e ha inciso numerosi CD con musiche di Mozart, Beethoven, Brahms e Schubert. Si dedica con passione all'insegnamento e tiene regolarmente masterclass in Italia e all'estero.</p>
+            `,
+            en: `
+            <p class="curriculum-intro"><strong>Prize-winning violinist and former concertmaster of RAI National Symphony Orchestra in Turin</strong></p>
+            <p>Anna Minella studied at the Turin Conservatory and perfected her skills with Riccardo Brengola at the Accademia Chigiana in Siena and with Corrado Romano in Geneva. She won the "Viotti" International Violin Competition in Vercelli and the "Città di Stresa" Competition.</p>
+            <p>She has been the concertmaster of the National Symphony Orchestra of RAI in Turin and the first violin of the RAI Quartet. She has collaborated as first violin with important Italian orchestras and has toured in Europe, America, Australia, and Japan. She was a violin professor at the Conservatory of Turin.</p>
+            <p>Her repertoire ranges from baroque to contemporary music and she has recorded numerous CDs with music by Mozart, Beethoven, Brahms, and Schubert. She is passionately dedicated to teaching and regularly holds masterclasses in Italy and abroad.</p>
+            `,
+            teacherName: "Anna_Minella"
+        },
+        "http://www.cmt.education/CMT/Roberto_Ranfaldi.html": {
+            it: `
+            <p class="curriculum-intro"><strong>Concertmaster dell'Orchestra Sinfonica Nazionale della RAI, stimato solista e docente</strong></p>
+            <p>Iniziato lo studio del violino con M. Ferraris, ha seguito a Boston i corsi di E. Rosenblyth. Nel 1983 ha suonato, come solista, in tournèe con la Schweizer Streichorchester di Engelberg (Svizzera). Conseguito il diploma nel 1984 con il massimo dei voti presso il Conservatorio "A. Vivaldi" di Alessandria, si è perfezionato con C. Romano a Ginevra e presso l'Accademia Internazionale "L. Perosi" di Biella.</p>
+            
+            <p>Nel 1989 è entrato a far parte dell'Orchestra Sinfonica della Rai di Torino; dal 1995 è violino di spalla dell'Orchestra Sinfonica Nazionale della Rai. Ha suonato con alcuni fra i più grandi direttori contemporanei, compiendo numerose tournèe in Francia, Germania, Giappone, Inghilterra, Spagna, Stati Uniti e Svizzera.</p>
+            
+            <p>È stato invitato a collaborare come violino di spalla da molte compagini, fra cui: Orchestra Filarmonica della Scala, Orchestra del Teatro alla Scala, Orchestra dell'Accademia Nazionale di Santa Cecilia, Orchestra del Maggio Musicale Fiorentino. Svolge attività didattica presso l'Accademia Internazionale "L. Perosi" di Biella ed è spesso chiamato in qualità di componente di giurie di concorsi nazionali ed internazionali.</p>
+            
+            <p>In ambito cameristico, oltre all'attività legata ai gruppi strumentali dell'Orchestra Sinfonica Nazionale della Rai, suona regolarmente in duo con il pianoforte e in formazione da camera con prestigiosi musicisti. Fra le incisioni discografiche, si segnalano un CD con musiche di Furtwaengler (Fonè); due CD, pubblicati da Videoradio, che propongono il Concerto Gregoriano di O. Respighi e Le quattro stagioni di Vivaldi (quest'ultima composizione interpretata nella doppia veste di solista e concertatore), in due registrazioni effettuate dal vivo.</p>
+            
+            <p>Suona un Evasio Guerra del 1923 e un Gennaro Gagliano ex Chumachenco del 1761.</p>
+            `,
+            en: `
+            <p class="curriculum-intro"><strong>Concertmaster of the RAI National Symphony Orchestra, distinguished soloist and professor</strong></p>
+            <p>Having begun his violin studies with M. Ferraris, he followed courses with E. Rosenblyth in Boston. In 1983, he performed as a soloist on tour with the Schweizer Streichorchester of Engelberg (Switzerland). After obtaining his diploma in 1984 with highest honors from the "A. Vivaldi" Conservatory of Alessandria, he perfected his skills with C. Romano in Geneva and at the "L. Perosi" International Academy of Biella.</p>
+            
+            <p>In 1989 he joined the RAI Symphony Orchestra of Turin; since 1995 he has been the concertmaster of the National Symphony Orchestra of RAI. He has performed with some of the greatest contemporary conductors, undertaking numerous tours in France, Germany, Japan, England, Spain, the United States, and Switzerland.</p>
+            
+            <p>He has been invited to collaborate as concertmaster by many ensembles, including: La Scala Philharmonic Orchestra, La Scala Theatre Orchestra, National Academy of Santa Cecilia Orchestra, and Florence's Maggio Musicale Orchestra. He teaches at the "L. Perosi" International Academy of Biella and is often called upon as a member of juries for national and international competitions.</p>
+            
+            <p>In the chamber music field, in addition to activities related to the instrumental groups of the RAI National Symphony Orchestra, he regularly plays in duo with piano and in chamber ensembles with prestigious musicians. Among his recordings, notable are a CD with music by Furtwaengler (Fonè); two CDs, published by Videoradio, featuring O. Respighi's Gregorian Concerto and Vivaldi's Four Seasons (the latter composition interpreted in the dual role of soloist and conductor), in two live recordings.</p>
+            
+            <p>He plays an Evasio Guerra from 1923 and a Gennaro Gagliano ex Chumachenco from 1761.</p>
+            `,
+            teacherName: "Roberto_Ranfaldi"
+        },
+        "http://www.cmt.education/CMT/Claudio_Pasceri.html": {
+            it: `
+            <p style="font-style: italic; font-size: 1.1em; text-align: center; margin-bottom: 1.5em;">"<strong>Il Violoncellista meraviglioso Claudio Pasceri mi ha impressionato tanto per via della sua musicalità e della maestria sovrana sul suo strumento, nonché per la sua competenza nella musica di oggi</strong>"</p>
+            <p style="text-align: center; margin-bottom: 2em; font-weight: bold;">Helmut Lachenmann</p>
+            <p class="curriculum-intro"><strong>Tra i più apprezzati violoncellisti italiani della propria generazione</strong>, svolge un'intensa attività concertistica.</p>
+            <p>Il repertorio solistico comprende concerti di <strong>Vivaldi</strong> fino a opere di <strong>Schnittke</strong>, in esecuzioni con orchestre come l'<strong>Orchestre de Chambre de Toulouse</strong>, la <strong>Camerata Royal Concertgebouw Amsterdam</strong>, l'<strong>Arpeggione Kammerorchester</strong>. Una sua esecuzione del concerto di <strong>Schumann</strong> è stata registrata dalla <strong>Bayerischer Rundfunk</strong> di Monaco di Baviera.</p>
+            <p>In ambito cameristico collabora con illustri musicisti, tra cui <strong>Salvatore Accardo</strong>, <strong>Pavel Gililov</strong>, <strong>Ilya Grubert</strong>, <strong>Dora Schwarzberg</strong>, <strong>Bruno Giuranna</strong>, <strong>Rohan De Saram</strong>, <strong>Rocco Filippini</strong>, <strong>Irvine Arditti</strong>, <strong>Gilles Apap</strong>.</p>
+            <p>Tiene regolarmente <strong>Masterclass e seminari</strong> per istituzioni europee come <strong>Musicalta</strong> a Rouffach, <strong>Università del Liceu</strong> di Barcellona, <strong>Conservatoire Royal</strong> di Bruxelles, <strong>Leopold Mozart Universität</strong> di Augsburg, <strong>Leeds University</strong>. È stato docente di violoncello, per diversi anni, presso l'<strong>Accademia di Musica di Pinerolo</strong>.</p>
+            <p><strong>Claudio Pasceri è direttore artistico di EstOvest Festival</strong>, manifestazione di musica contemporanea. È <strong>Artista in residence</strong>, per il triennio 2023/2025, presso la <strong>Reggia di Venaria Reale</strong>.</p>
+            `,
+            en: `
+            <p style="font-style: italic; font-size: 1.1em; text-align: center; margin-bottom: 1.5em;">"<strong>The wonderful cellist Claudio Pasceri has impressed me so much for his musicality and sovereign mastery of his instrument, as well as for his competence in today's music</strong>"</p>
+            <p style="text-align: center; margin-bottom: 2em; font-weight: bold;">Helmut Lachenmann</p>
+            <p class="curriculum-intro"><strong>Tra i più apprezzati violoncellisti italiani della propria generazione</strong>, svolge un'intensa attività concertistica.</p>
+            <p>His solo repertoire includes concertos from <strong>Vivaldi</strong> to works by <strong>Schnittke</strong>, in performances with orchestras such as the <strong>Orchestre de Chambre de Toulouse</strong>, the <strong>Camerata Royal Concertgebouw Amsterdam</strong>, and the <strong>Arpeggione Kammerorchester</strong>. His performance of the <strong>Schumann</strong> concerto was recorded by <strong>Bayerischer Rundfunk</strong> in Munich.</p>
+            <p>In chamber music, he collaborates with distinguished musicians, including <strong>Salvatore Accardo</strong>, <strong>Pavel Gililov</strong>, <strong>Ilya Grubert</strong>, <strong>Dora Schwarzberg</strong>, <strong>Bruno Giuranna</strong>, <strong>Rohan De Saram</strong>, <strong>Rocco Filippini</strong>, <strong>Irvine Arditti</strong>, and <strong>Gilles Apap</strong>.</p>
+            <p>He regularly holds <strong>Masterclasses and seminars</strong> for European institutions such as <strong>Musicalta</strong> in Rouffach, <strong>University of Liceu</strong> in Barcelona, <strong>Conservatoire Royal</strong> in Brussels, <strong>Leopold Mozart Universität</strong> in Augsburg, and <strong>Leeds University</strong>. He was a cello professor for several years at the <strong>Academy of Music of Pinerolo</strong>.</p>
+            <p><strong>Claudio Pasceri is the artistic director of EstOvest Festival</strong>, a contemporary music event. He is an <strong>Artist in residence</strong> for the period 2023/2025 at the <strong>Reggia di Venaria Reale</strong>.</p>
+            `,
+            teacherName: "Claudio_Pasceri"
+        },
+        "http://www.cmt.education/CMT/Alberto_Brini.html": {
+            it: `
+            <p class="curriculum-intro"><strong>Trombettista italiano, già Prima Tromba del Teatro alla Scala e didatta di riferimento</strong></p>
+            <p>Alberto Brini ha studiato tromba al Conservatorio "G. Verdi" di Milano, diplomandosi con il massimo dei voti, e si è perfezionato con Pierre Thibaud a Parigi e con Adolph Herseth a Chicago. È stato vincitore di concorsi nazionali ed internazionali, tra cui il Concorso Internazionale "Città di Porcia".</p>
+            <p>È stato Prima Tromba dell'Orchestra del Teatro alla Scala di Milano e dell'Orchestra del Maggio Musicale Fiorentino. Ha collaborato con direttori di fama mondiale come Claudio Abbado, Riccardo Muti, Zubin Mehta e Daniel Barenboim. Come solista, ha eseguito i principali concerti per tromba con importanti orchestre italiane ed europee.</p>
+            <p>È docente di tromba presso il Conservatorio "G. Verdi" di Milano e tiene regolarmente masterclass e corsi di perfezionamento in Italia e all'estero. Ha inciso per diverse etichette discografiche ed è autore di un metodo per tromba adottato in numerosi conservatori.</p>
+            `,
+            en: `
+            <p class="curriculum-intro"><strong>Italian trumpeter, former Principal Trumpet at La Scala and leading pedagogue</strong></p>
+            <p>Alberto Brini studied trumpet at the "G. Verdi" Conservatory in Milan, graduating with highest honors, and perfected his skills with Pierre Thibaud in Paris and with Adolph Herseth in Chicago. He has won national and international competitions, including the "Città di Porcia" International Competition.</p>
+            <p>He has been Principal Trumpet of the Orchestra of Teatro alla Scala in Milan and of the Orchestra of Maggio Musicale Fiorentino. He has collaborated with world-renowned conductors such as Claudio Abbado, Riccardo Muti, Zubin Mehta, and Daniel Barenboim. As a soloist, he has performed the main trumpet concertos with important Italian and European orchestras.</p>
+            <p>He is a trumpet professor at the "G. Verdi" Conservatory in Milan and regularly holds masterclasses and advanced courses in Italy and abroad. He has recorded for various record labels and is the author of a trumpet method adopted in numerous conservatories.</p>
+            `,
+            teacherName: "Alberto_Brini"
+        }
+    };
+    
+    // Make curriculumData available globally for language switching
+    window.curriculumData = curriculumData;
+    
+    // Default image to use if teacher image is not available
+    const defaultTeacherImage = "images/teachers/default-teacher.jpg";
+    
+    // Function to open modal with teacher bio
+    function openBioModal(teacherName, bioUrl, clickEvent) {
+        // Get the current language and translation from i18n.js
+        const currentLang = document.documentElement.getAttribute('lang') || 'it';
+        const bioModalTitleText = (window.translations && window.translations[currentLang] && 
+            window.translations[currentLang].bioModalTitle) ? window.translations[currentLang].bioModalTitle : 'Curriculum';
+        
+        // Set the modal title to include teacher name
+        bioModalTitle.textContent = `${bioModalTitleText}: ${teacherName}`;
+        
+        // Get the bio image element
+        const bioImage = document.getElementById('bio-image');
+        
+        // Check if we have the content for this teacher
+        if (bioUrl && curriculumData[bioUrl]) {
+            // Set content based on current language
+            const teacherData = curriculumData[bioUrl];
+            // Use the current language content if available, otherwise fall back to Italian
+            const contentToShow = teacherData[currentLang] || teacherData['it'];
+            bioContent.innerHTML = contentToShow;
+            
+            // Extract the teacher name from the URL for the image
+            const urlParts = bioUrl.split('/');
+            const teacherNameFromUrl = urlParts[urlParts.length - 1].replace('.html', '');
+            
+            // Try multiple image filename patterns
+            tryLoadingImage(bioImage, teacherNameFromUrl, teacherName);
+            
+            showModal(clickEvent);
+        } else {
+            // Default message if no content is available
+            const curriculumInPreparationText = (window.translations && window.translations[currentLang] && 
+                window.translations[currentLang].curriculumInPreparation) ? window.translations[currentLang].curriculumInPreparation : 'Curriculum in preparazione.';
+            
+            const imageNotAvailableText = (window.translations && window.translations[currentLang] && 
+                window.translations[currentLang].imageNotAvailable) ? window.translations[currentLang].imageNotAvailable : 'Immagine non disponibile';
+            
+            bioContent.innerHTML = `<p>${curriculumInPreparationText}</p>`;
+            bioImage.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="300" height="300" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="Arial" font-size="24" text-anchor="middle" fill="%23999">${imageNotAvailableText}</text></svg>`;
+            bioImage.alt = imageNotAvailableText;
+            showModal(clickEvent);
+        }
+    }
+    
+    // Function to try multiple image filename patterns
+    function tryLoadingImage(imgElement, teacherName, displayName) {
+        console.log(`[tryLoadingImage] Called for displayName: "${displayName}", teacherName variable for path: "${teacherName}"`);
+
+        // Get the current language
+        const currentLang = document.documentElement.getAttribute('lang') || 'it';
+        
+        // Create alt text with proper translation
+        const photoOfText = (window.translations && window.translations[currentLang] && 
+            window.translations[currentLang].photoOf) ? window.translations[currentLang].photoOf : 'Foto di';
+        imgElement.alt = `${photoOfText} ${displayName}`;
+        
+        const patternAttempts = [
+            // Primary local patterns
+            { url: `images/teachers/${teacherName}.jpg`, type: 'local' },
+            { url: `images/teachers/${teacherName}.png`, type: 'local' },
+            { url: `images/teachers/${teacherName}.webp`, type: 'local' },
+            // Fallback to lowercase local patterns
+            { url: `images/teachers/${teacherName.toLowerCase()}.jpg`, type: 'local' },
+            { url: `images/teachers/${teacherName.toLowerCase()}.png`, type: 'local' },
+            // Last resort: original external HTTP link (likely blocked by mixed content)
+            { url: `http://www.cmt.education/CMT/${teacherName}_files/droppedImage.jpg`, type: 'external_fallback' } 
+        ];
+        
+        let currentAttempt = 0;
+        
+        function tryNextImage() {
+            if (currentAttempt >= patternAttempts.length) {
+                console.warn(`[tryLoadingImage] All patterns failed for "${displayName}". Using placeholder SVG.`);
+                const imageNotAvailableText = (window.translations && window.translations[currentLang] && 
+                    window.translations[currentLang].imageNotAvailable) ? window.translations[currentLang].imageNotAvailable : 'Immagine non disponibile';
+                imgElement.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300"><rect width="300" height="300" fill="%23f0f0f0"/><text x="50%" y="50%" font-family="Arial" font-size="24" text-anchor="middle" fill="%23999">${imageNotAvailableText}</text></svg>`;
+                imgElement.alt = imageNotAvailableText;
+                return;
+            }
+            
+            const attemptInfo = patternAttempts[currentAttempt];
+            const nextUrl = attemptInfo.url;
+            const attemptType = attemptInfo.type;
+            currentAttempt++; // Increment for the next call
+
+            console.log(`[tryLoadingImage] Attempt ${currentAttempt}/${patternAttempts.length} (${attemptType}) for "${displayName}": Trying URL: ${nextUrl}`);
+            
+            const img = new Image();
+            img.onload = () => {
+                console.log(`[tryLoadingImage] SUCCESS: Loaded image for "${displayName}" from (${attemptType}) ${nextUrl}`);
+                imgElement.src = nextUrl;
+            };
+            img.onerror = () => {
+                console.warn(`[tryLoadingImage] FAILED: Could not load image for "${displayName}" from (${attemptType}) ${nextUrl}.`);
+                tryNextImage(); // Try the next pattern
+            };
+            img.src = nextUrl;
+        }
+        
+        // Start trying to load images
+        tryNextImage();
+    }
+    
+    // Function to show the modal with iPhone-like animation from the click point
+    function showModal(clickEvent) {
+        // First, position the modal content origin point
+        if (clickEvent) {
+            try {
+                // Get the position of the clicked button
+                const buttonElement = clickEvent.target.closest('.bio-btn');
+                const buttonRect = buttonElement.getBoundingClientRect();
+                
+                // Calculate the button's center position relative to the viewport
+                const buttonCenterX = buttonRect.left + (buttonRect.width / 2);
+                const buttonCenterY = buttonRect.top + (buttonRect.height / 2);
+                
+                // Set the transform origin to the button's position
+                bioModalContent.style.transformOrigin = `${buttonCenterX}px ${buttonCenterY}px`;
+            } catch (error) {
+                console.error("Error setting transform origin:", error);
+                bioModalContent.style.transformOrigin = 'center';
+            }
+        } else {
+            bioModalContent.style.transformOrigin = 'center';
+        }
+        
+        // Make the modal visible with animation by adding the class
+        bioModal.classList.add('show');
+        document.body.style.overflow = 'hidden'; // Prevent body scrolling
+    }
+    
+    // Function to hide the modal with reverse animation
+    function hideModal() {
+        // Get the closing button's position for the reverse animation
+        const closeButtonRect = bioModalClose.getBoundingClientRect();
+        const closeButtonCenterX = closeButtonRect.left + (closeButtonRect.width / 2);
+        const closeButtonCenterY = closeButtonRect.top + (closeButtonRect.height / 2);
+        
+        // Set the transform origin to animate back to the close button
+        bioModalContent.style.transformOrigin = `${closeButtonCenterX}px ${closeButtonCenterY}px`;
+        
+        // Add the closing class to trigger the shrinking animation
+        bioModal.classList.add('closing');
+        
+        // Remove all classes after the animation completes
+        setTimeout(() => {
+            bioModal.classList.remove('show', 'closing');
+            document.body.style.overflow = ''; // Restore body scrolling
+        }, 500); // Match the transition time in CSS
+    }
+    
+    // Add click event listeners to bio buttons
+    bioButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            const teacherName = this.getAttribute('data-teacher-name');
+            const bioUrl = this.getAttribute('data-bio-url');
+            openBioModal(teacherName, bioUrl, event);
+        });
+    });
+    
+    // Close modal on close button click
+    bioModalClose.addEventListener('click', hideModal);
+    
+    // Close modal on background click
+    bioModal.addEventListener('click', function(event) {
+        if (event.target === bioModal) {
+            hideModal();
+        }
+    });
+    
+    // Close modal on escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && bioModal.classList.contains('show')) {
+            hideModal();
+        }
+    });
+}); 

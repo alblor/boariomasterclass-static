@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - BoarioMasterclass</title>
+    <meta name="description" content="Dashboard amministrativo per la gestione delle iscrizioni BoarioMasterclass">
+    
+    <!-- Existing site styles -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Admin dashboard specific styles -->
+    <style>
+        .admin-container {
+            max-width: 1200px;
+            margin: 120px auto 60px;
+            padding: 2rem;
+            background: var(--bar-bg-color);
+            border-radius: var(--bar-border-radius);
+            border: var(--bar-contour-thickness) solid var(--gold-main);
+            box-shadow: 0 8px 24px var(--shadow-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* Admin Navigation Styles */
+        .admin-nav-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-left: 1rem;
+        }
+        
+        .user-info-display {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 0.8rem;
+        }
+        
+        .user-name {
+            color: var(--gold-main);
+            font-weight: bold;
+        }
+        
+        .user-role {
+            color: var(--text-subtle-color);
+            font-size: 0.7rem;
+        }
+        
+        /* Circular Logout Button */
+        .logout-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-main) 100%);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .logout-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, var(--gold-main) 0%, var(--gold-dark) 100%);
+        }
+        
+        .logout-btn:active {
+            transform: translateY(0) scale(0.95);
+        }
+        
+        .logout-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .logout-btn:hover .logout-icon {
+            transform: rotate(15deg);
+        }
+        
+        .admin-title {
+            color: var(--gold-main);
+            font-family: var(--heading-font);
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .admin-subtitle {
+            text-align: center;
+            color: var(--text-subtle-color);
+            margin-bottom: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: color-mix(in srgb, var(--gold-main) 5%, transparent);
+            border: 2px solid var(--gold-light);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--gold-main);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--gold-main);
+            display: block;
+        }
+        
+        .stat-label {
+            color: var(--text-color);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .filters-section {
+            background: color-mix(in srgb, var(--gold-main) 3%, var(--bg-color));
+            border: 1px solid var(--gold-light);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .filters-title {
+            color: var(--gold-main);
+            font-family: var(--heading-font);
+            margin-bottom: 1rem;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 10px 14px;
+            border: 2px solid var(--gold-light);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--primary-font);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--gold-main);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold-main) 30%, transparent);
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-family: var(--primary-font);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-main) 100%);
+            color: white;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--gold-main) 0%, var(--gold-dark) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-approve {
+            background: linear-gradient(135deg, #28a745, #34ce57);
+            color: white;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-approve:hover {
+            background: linear-gradient(135deg, #218838, #28a745);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(40, 167, 69, 0.3);
+        }
+        
+        .btn-reject {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+            font-size: 0.8rem;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-reject:hover {
+            background: linear-gradient(135deg, #c82333, #dc3545);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(220, 53, 69, 0.3);
+        }
+        
+        .registrations-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .registrations-table th {
+            background: var(--gold-main);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .registrations-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        
+        .registrations-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .registration-row {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .registration-row:hover {
+            background: color-mix(in srgb, var(--gold-main) 8%, transparent) !important;
+        }
+        
+        .registration-row.expanded {
+            background: color-mix(in srgb, var(--gold-main) 5%, transparent);
+        }
+        
+        .expand-icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+            color: var(--gold-main);
+            margin-right: 8px;
+        }
+        
+        .registration-row.expanded .expand-icon {
+            transform: rotate(90deg);
+        }
+        
+        .registration-details {
+            display: none;
+        }
+        
+        .registration-details.expanded {
+            display: table-row;
+            animation: expandRow 0.4s ease-out;
+        }
+        
+        @keyframes expandRow {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .details-content {
+            background: color-mix(in srgb, var(--gold-main) 3%, var(--bg-color));
+            border: 1px solid var(--gold-light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 10px;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .detail-section {
+            background: var(--bg-color);
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid var(--gold-light);
+        }
+        
+        .detail-section h4 {
+            color: var(--gold-main);
+            font-family: var(--heading-font);
+            margin: 0 0 1rem 0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--gold-light);
+            padding-bottom: 0.5rem;
+        }
+        
+        .detail-field {
+            margin-bottom: 0.8rem;
+        }
+        
+        .detail-label {
+            font-weight: bold;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+        
+        .detail-value {
+            color: var(--text-subtle-color);
+            margin-top: 0.2rem;
+            font-size: 0.95rem;
+            word-wrap: break-word;
+        }
+        
+        .detail-value.empty {
+            color: var(--text-subtle-color);
+            font-style: italic;
+        }
+        
+        .close-details {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .close-details .btn {
+            background: var(--gold-main);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-details .btn:hover {
+            background: var(--gold-dark);
+            transform: translateY(-1px);
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .student-info {
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .student-meta {
+            font-size: 0.8rem;
+            color: var(--text-subtle-color);
+            margin-top: 4px;
+        }
+        
+        .minor-badge {
+            background: linear-gradient(135deg, #ffc107, #ffeb3b);
+            color: #212529;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            margin-left: 0.5rem;
+            box-shadow: 0 2px 6px rgba(255, 193, 7, 0.3);
+        }
+        
+        .actions-cell {
+            min-width: 120px;
+        }
+        
+        .actions-cell .btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 4px;
+        }
+        
+        .loading-container {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-subtle-color);
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid color-mix(in srgb, var(--gold-main) 20%, transparent);
+            border-top: 4px solid var(--gold-main);
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+            margin: 0 auto 1rem;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-container {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-color);
+        }
+        
+        .error-icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        .error-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-subtle-color);
+        }
+        
+        .empty-icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold-light), var(--gold-main));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+        
+        .empty-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .pagination .btn {
+            padding: 10px 20px;
+            border-radius: 25px;
+            min-width: 120px;
+        }
+        
+        .pagination .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .page-info {
+            color: var(--text-subtle-color);
+        }
+        
+        @media (max-width: 768px) {
+            .admin-container {
+                margin: 100px 1rem 40px;
+                padding: 1rem;
+            }
+            
+            .admin-title {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .registrations-table {
+                font-size: 0.8rem;
+            }
+            
+            .registrations-table th,
+            .registrations-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-background"></div>
+    
+    <!-- Header Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="/" class="nav-logo">
+                <img src="logo.svg" alt="BoarioMasterclass" height="40">
+                BoarioMasterclass
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/#about">Info</a>
+                <a href="/#teachers">Docenti</a>
+                <a href="registration.html">Iscrizione</a>
+                <a href="admin.html" class="active">Admin</a>
+                <!-- Admin User Info -->
+                <div class="admin-nav-info" id="admin-nav-info" style="display: none;">
+                    <div id="user-info" class="user-info-display"></div>
+                    <button id="logout-btn" class="logout-btn" onclick="adminHandler.logout()" title="Logout">
+                        <span class="logout-icon">🚪</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="site-container">
+        <div class="admin-container">
+            <h1 class="admin-title">Dashboard Amministrativo</h1>
+            <p class="admin-subtitle">Gestione iscrizioni BoarioMasterclass 2025</p>
+            
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number" id="total-registrations">0</span>
+                    <div class="stat-label">Iscrizioni Totali</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="pending-registrations">0</span>
+                    <div class="stat-label">In Attesa</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="approved-registrations">0</span>
+                    <div class="stat-label">Approvate</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="rejected-registrations">0</span>
+                    <div class="stat-label">Rifiutate</div>
+                </div>
+            </div>
+            
+            <!-- Filters Section -->
+            <div class="filters-section">
+                <h3 class="filters-title">Filtri e Ricerca</h3>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label for="status-filter">Stato</label>
+                        <select id="status-filter">
+                            <option value="all">Tutti</option>
+                            <option value="pending">In Attesa</option>
+                            <option value="approved">Approvate</option>
+                            <option value="rejected">Rifiutate</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="instrument-filter">Strumento</label>
+                        <select id="instrument-filter">
+                            <option value="all">Tutti</option>
+                            <option value="canto">Canto</option>
+                            <option value="viola">Viola</option>
+                            <option value="chitarra">Chitarra</option>
+                            <option value="clarinetto">Clarinetto</option>
+                            <option value="violino">Violino</option>
+                            <option value="violoncello">Violoncello</option>
+                            <option value="tromba">Tromba</option>
+                            <option value="pianoforte">Pianoforte</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="search-input">Cerca</label>
+                        <input type="text" id="search-input" placeholder="Nome, email, codice fiscale...">
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-primary" onclick="adminHandler.applyFilters()">Applica Filtri</button>
+                        <button class="btn btn-secondary" onclick="adminHandler.clearFilters()">Reset</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loading-state" class="loading-container">
+                <div class="spinner"></div>
+                <p>Caricamento dashboard...</p>
+            </div>
+            
+            <!-- Error State -->
+            <div id="error-state" class="error-container" style="display: none;">
+                <div class="error-icon-circle">
+                    <span class="error-icon">❌</span>
+                </div>
+                <h3>Errore di Accesso</h3>
+                <p id="error-message">Non hai i permessi per accedere a questa pagina.</p>
+                <div class="error-actions">
+                    <button class="btn btn-primary" onclick="adminHandler.retry()">Riprova</button>
+                    <a href="admin-login.html" class="btn btn-secondary">Vai al Login</a>
+                </div>
+            </div>
+            
+            <!-- Registrations Table -->
+            <div id="registrations-section" style="display: none;">
+                <table class="registrations-table">
+                    <thead>
+                        <tr>
+                            <th width="5%"></th>
+                            <th>Studente</th>
+                            <th>Strumento & Docente</th>
+                            <th>Data Iscrizione</th>
+                            <th>Stato</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="registrations-tbody">
+                        <!-- Registrations will be populated here -->
+                    </tbody>
+                </table>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button class="btn btn-secondary" id="prev-page" onclick="adminHandler.previousPage()">← Precedente</button>
+                    <span class="page-info" id="page-info">Pagina 1 di 1</span>
+                    <button class="btn btn-secondary" id="next-page" onclick="adminHandler.nextPage()">Successiva →</button>
+                </div>
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <div class="empty-icon-circle">
+                    <span class="empty-icon">📋</span>
+                </div>
+                <h3>Nessuna Iscrizione</h3>
+                <p>Non ci sono iscrizioni che corrispondono ai filtri selezionati.</p>
+                <button class="btn btn-secondary" onclick="adminHandler.clearFilters()">Rimuovi Filtri</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+    
+    <!-- Admin Dashboard JavaScript -->
+    <script src="js/admin.js"></script>
+</body>
+</html> 

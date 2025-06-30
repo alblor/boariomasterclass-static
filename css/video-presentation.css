@@ -1,0 +1,1253 @@
+/* Video Presentation Section Styles */
+:root {
+    /* Fallback CSS variables in case style.css doesn't load properly */
+    --gold-main: #c4a86b;
+    --gold-light: #d9c89b;
+    --gold-dark: #a48a4c;
+    --gold-glow: #FFD700;
+    --gold-rgb: 196, 168, 107;
+    --text-color: #5D4037;
+    --text-subtle-color: #795548;
+    --primary-font: 'Lato', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --heading-font: 'Playfair Display', serif;
+    --bs-gutter-x: 0.75rem;
+    
+    /* Gradient fallback variables */
+    --gradient-flame-start: rgba(220, 100, 50, 0.5);
+    --gradient-flame-end: rgba(255, 150, 80, 0);
+    --gradient-flame-dark-start: rgba(50, 20, 10, 0.6);
+    --gradient-flame-dark-end: rgba(80, 40, 20, 0);
+    
+    /* Video-specific variables */
+    --video-section-padding: 5vh; /* Adjusted for responsiveness */
+    --video-text-max-width: 800px;
+    --video-title-font-size: clamp(2.5rem, 5vw, 3.5rem);
+    --video-subtitle-font-size: clamp(1rem, 2.5vw, 1.25rem);
+    --large-video-aspect-ratio: 16/9;
+    --small-video-aspect-ratio: 16/9;
+    --video-border-radius: 12px; /* Softened border radius */
+    --play-button-size: clamp(50px, 10vw, 80px);
+    --scroll-prompt-animation-duration: 3s;
+}
+
+[data-theme="dark"] {
+    /* Dark theme fallback variables */
+    --text-color: #E0D8D0;
+    --text-subtle-color: #B0A090;
+}
+
+/* OLD: Removed scroll-prompt-banner styles - replaced with new video-prompt-section below */
+
+/* Video Presentation Section */
+.video-presentation-section {
+    position: relative; /* For gradient overlay */
+    padding: var(--video-section-padding) var(--bs-gutter-x, 0.75rem); /* Use Bootstrap gutter if available, else default */
+    padding-top: calc(5vh + 20px); /* Reduced from calc(10vh + 50px) to significantly reduce space above title */
+    display: none; /* Hidden by default - will be changed to flex by JS on scroll */
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end; /* Anchor content to bottom of viewport */
+    background-color: transparent; /* Allow page background to show through */
+    color: var(--text-color); /* Dynamic based on theme */
+    opacity: 0; /* Initially hidden, revealed by JS */
+    transform: translateY(20px); /* Slight upward animation */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    overflow: hidden; /* Prevent scrollbars from animating elements */
+}
+
+.video-presentation-section.visible {
+    display: flex; /* Ensure flex layout when visible */
+    position: relative; /* Flow with document */
+    top: auto; left: auto;
+    width: 100%;
+    height: auto; /* Let content define height */
+    padding-top: calc(var(--video-section-padding) + 20px); /* Match initial section padding for natural start */
+    padding-bottom: var(--video-section-padding); /* Maintain bottom spacing */
+    justify-content: flex-start; /* Anchor content to top for scrollable content */
+    opacity: 1;
+    transform: translateY(0);
+    z-index: auto; /* Default stacking */
+    overflow: visible; /* Allow content below to show when scrolling the page */
+    min-height: 0; /* Remove forced full viewport height so section fits content */
+    background-color: transparent; /* Maintain transparency when visible */
+}
+
+/* Gradient Overlay for "Flame" Effect */
+.video-presentation-gradient-overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0; /* Initially no height, grows with JS */
+    background: linear-gradient(to top, var(--gradient-flame-start, rgba(220, 100, 50, 0.5)), var(--gradient-flame-end, rgba(255, 150, 80, 0)));
+    z-index: -1; /* Place behind all content */
+    pointer-events: none; /* Allow interactions through */
+    transition: height 1s ease-out, opacity 1s ease-out; /* Smooth growth and fade */
+    opacity: 0; /* Start transparent, fade in */
+}
+
+body[data-theme="dark"] .video-presentation-gradient-overlay {
+    background: linear-gradient(to top, var(--gradient-flame-dark-start, rgba(50, 20, 10, 0.6)), var(--gradient-flame-dark-end, rgba(80, 40, 20, 0)));
+}
+
+
+.video-presentation-section.visible .video-presentation-gradient-overlay {
+    height: 60%; /* Increased to cover more of the bottom */
+    opacity: 0.7; /* Fade in to this opacity */
+     transition: height 1s ease-out 0.3s, opacity 1s ease-out 0.3s; /* Delayed transition */
+}
+
+
+/* Text Content (Title and Subtitle) */
+.video-text-content {
+    text-align: center;
+    margin-bottom: calc(var(--video-section-padding) / 1.5); /* Space between text and videos */
+    max-width: var(--video-text-max-width);
+    z-index: 1; /* Above gradient */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease-out 0.5s, transform 0.8s ease-out 0.5s; /* Delayed appearance */
+}
+
+.video-presentation-section.visible .video-text-content {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.video-section-title {
+    font-family: var(--heading-font); /* Changed from Cinzel */
+    font-size: var(--video-title-font-size);
+    font-weight: 700;
+    color: var(--gold-main); /* Consistent gold color */
+    margin-bottom: 0.8em; /* Increased spacing for divider */
+    letter-spacing: 0.5px; /* Added for Playfair Display */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative; /* For the ::after pseudo-element */
+    padding-bottom: 0.6em; /* Increased space for the animated divider */
+}
+
+.video-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; /* Start with 0 width for animation */
+    height: 4px; /* Start thicker, will animate to thinner */
+    background: linear-gradient(90deg, var(--gold-main), var(--gold-light));
+    border-radius: 2px; /* Adjusted for thicker initial state */
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+    opacity: 0; /* Start transparent */
+    transition: height 0.1s ease; /* Smooth height transitions during pulse */
+}
+
+/* Animation for the video section title divider when section becomes visible */
+.video-presentation-section.visible .video-section-title::after {
+    animation: videoTitleUnderlineGrow 2.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards,
+               subtlePulseDivider 3s ease-in-out infinite 2.5s; /* Pulsing starts after slower expansion */
+}
+
+/* Keyframes for divider expansion animation */
+@keyframes videoTitleUnderlineGrow {
+    from { 
+        width: 0; 
+        height: 4px; /* Start thicker */
+        opacity: 0;
+    }
+    30% {
+        width: 60px; /* Slower initial growth */
+        height: 3.8px; /* Gradual thinning */
+        opacity: 0.5;
+    }
+    70% {
+        width: 140px; /* Progressive expansion */
+        height: 3px; /* Continued thinning */
+        opacity: 0.8;
+    }
+    to { 
+        width: 200px; /* Even longer final length */
+        height: 2.5px; /* End thinner for elegance */
+        opacity: 0.9;
+    }
+}
+
+/* Keyframes for subtle pulsing effect */
+@keyframes subtlePulseDivider {
+    0%, 100% { 
+        box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+        opacity: 0.9;
+        height: 2.5px; /* Maintain final thickness during pulse */
+    }
+    50% { 
+        box-shadow: 0 0 15px rgba(212, 175, 55, 0.7);
+        opacity: 1;
+        height: 3px; /* Slightly thicker during pulse peak */
+    }
+}
+
+/* Add pulsing animation to the title when section becomes visible */
+.video-presentation-section.visible .video-section-title {
+    animation: titlePulse 4s ease-in-out infinite 3s; /* Start pulsing after divider animation */
+}
+
+/* Keyframes for subtle title pulsing effect */
+@keyframes titlePulse {
+    0%, 100% {
+        transform: scale(1);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1),
+                     0 0 3px rgba(var(--gold-rgb), 0.15);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.005); /* Much more subtle scale increase */
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12),
+                     0 0 8px rgba(var(--gold-rgb), 0.25);
+        opacity: 0.98; /* Very subtle opacity change */
+    }
+}
+
+.video-section-subtitle {
+    font-family: var(--primary-font); /* Changed from Lato (explicitly to use variable) */
+    font-size: var(--video-subtitle-font-size);
+    color: var(--text-subtle-color); /* Using subtle text color */
+    line-height: 1.7; /* Slightly increased for better readability */
+    font-style: normal; /* Removed italic */
+    max-width: 700px; /* Slightly increased max-width */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Video Players Container */
+.video-players-container {
+    display: flex;
+    flex-direction: column; /* Stack large then small (for slide-in effect) */
+    align-items: center; /* Center the column */
+    gap: 40px; /* Increased space between video containers */
+    width: 100%;
+    max-width: 1000px; /* Max width for the video area */
+    z-index: 1; /* Above gradient */
+}
+
+/* Individual Video Player Styling */
+.video-player {
+    position: relative;
+    overflow: hidden; /* Ensures border-radius clips content */
+    transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), 
+                box-shadow 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    background-color: #000; /* Black background for videos */
+
+    /* Added for gold contour */
+    border: 2px solid var(--gold-main);
+    box-shadow: 0 0 10px var(--gold-glow), 0 0 5px var(--gold-light), 0 8px 20px rgba(0,0,0,0.1); /* Added existing shadow for depth */
+    border-radius: var(--video-border-radius); /* Consistent border radius */
+}
+
+/* Elegant hover effects for video players */
+.video-player:hover {
+    transform: translateY(-8px) scale(1.02); /* Lift and slight scale */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(var(--gold-rgb), 0.15); /* Enhanced shadow with gold glow */
+    filter: brightness(1.05) saturate(1.1); /* Slight brightness and saturation boost */
+}
+
+/* Special hover effect for large video */
+.video-player.large-video:hover {
+    transform: translateY(-10px) scale(1.025); /* Slightly more pronounced for main video */
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35),
+                0 0 25px rgba(var(--gold-rgb), 0.2);
+}
+
+/* Hover effect for play button when video is hovered */
+.video-player:hover .play-button {
+    transform: translate(-50%, -50%) scale(1.15); /* Scale up play button on video hover */
+    background-color: rgba(var(--gold-rgb), 0.95); /* More opaque gold */
+    box-shadow: 0 0 20px rgba(var(--gold-rgb), 0.6); /* Gold glow around play button */
+}
+
+/* Enhanced play button hover (when directly hovering the button) */
+.play-button:hover {
+    background-color: var(--gold-main) !important; /* Solid gold on direct hover */
+    transform: translate(-50%, -50%) scale(1.2) !important; /* Larger scale on direct hover */
+    box-shadow: 0 0 25px rgba(var(--gold-rgb), 0.8) !important; /* Stronger glow */
+}
+
+.video-player.large-video {
+    width: 90%; /* Responsive width */
+    max-width: 800px; /* Max width for the larger video */
+    aspect-ratio: var(--large-video-aspect-ratio);
+    transform: translateY(100px); /* Start off-screen for slide-in */
+    transition: opacity 0.8s ease-out 0.8s, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.8s; /* Slide-in animation */
+}
+
+.video-player.small-video {
+    width: 50%; /* Smaller video width */
+    max-width: 400px; /* Max width for smaller video */
+    aspect-ratio: var(--small-video-aspect-ratio);
+    align-self: flex-end; /* Align to the right of the column (centered overall) */
+    transform: translateY(80px); /* Start off-screen for slide-in */
+    opacity: 0; /* Initially hidden for staggered animation */
+    transition: opacity 0.8s ease-out 1s, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) 1s; /* Delayed slide-in */
+}
+
+.video-presentation-section.visible .video-player.large-video {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.video-presentation-section.visible .video-player.small-video {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+.video-player video {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover; /* Cover the container, might crop */
+    border-radius: var(--video-border-radius); /* Match parent's border radius */
+}
+
+.video-player video[poster] {
+    object-fit: cover; /* Ensure poster image covers well */
+}
+
+/* Add fallback aspect-ratio rules to video elements for browsers without container aspect-ratio support */
+.video-player.large-video video {
+    aspect-ratio: var(--large-video-aspect-ratio);
+}
+.video-player.small-video video {
+    aspect-ratio: var(--small-video-aspect-ratio);
+}
+
+/* Custom Play Button */
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--play-button-size);
+    height: var(--play-button-size);
+    background-color: rgba(var(--gold-rgb), 0.8); /* Use gold RGB variable */
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth easing */
+    padding: 0; /* Reset padding */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Initial subtle shadow */
+}
+
+.play-button svg {
+    width: 50%; /* Relative to button size */
+    height: 50%;
+    fill: #fff; /* White play icon */
+}
+
+.video-player video.playing + .play-button {
+    opacity: 0;
+    pointer-events: none; /* Hide and disable button when video is playing */
+}
+
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .video-presentation-section {
+        padding: calc(var(--video-section-padding) / 1.5) var(--bs-gutter-x, 0.75rem);
+    }
+
+    .video-players-container {
+        gap: 30px; /* Maintain reasonable gap on smaller screens */
+    }
+
+    .video-player.large-video {
+        width: 95%; /* Slightly wider on mobile */
+    }
+
+    .video-player.small-video {
+        width: 70%; /* Adjust small video width for mobile */
+    }
+
+    /* Reduce hover effects on mobile for better performance */
+    .video-player:hover {
+        transform: translateY(-4px) scale(1.01); /* Less pronounced on mobile */
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25),
+                    0 0 15px rgba(var(--gold-rgb), 0.1);
+    }
+
+    .video-player.large-video:hover {
+        transform: translateY(-5px) scale(1.015); /* Reduced mobile hover effect */
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --play-button-size: clamp(40px, 12vw, 60px);
+    }
+    .video-section-title {
+        font-size: clamp(1.8rem, 6vw, 2.5rem);
+    }
+    .video-section-subtitle {
+        font-size: clamp(0.9rem, 3vw, 1.1rem);
+    }
+
+    /* Further reduce hover effects on very small screens */
+    .video-player:hover {
+        transform: translateY(-2px) scale(1.005); /* Minimal hover on small mobile */
+    }
+
+    .video-player.large-video:hover {
+        transform: translateY(-3px) scale(1.01);
+    }
+
+    /* Ensure play button remains accessible on mobile */
+    .play-button {
+        min-width: 44px; /* Minimum touch target size */
+        min-height: 44px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    /* Disable hover effects on touch-only devices */
+    .video-player:hover {
+        transform: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        filter: none;
+    }
+
+    .video-player.large-video:hover {
+        transform: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Keep play button interactive but reduce effects */
+    .video-player:hover .play-button {
+        transform: translate(-50%, -50%) scale(1.05);
+        box-shadow: 0 0 10px rgba(var(--gold-rgb), 0.4);
+    }
+}
+
+/* UI background banner now wraps content responsively */
+.video-presentation-ui-bg {
+    position: relative;
+    margin: var(--video-section-padding) auto;
+    width: 90%;
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.8); /* Translucent backdrop */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 32px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.10), 0 1.5px 8px rgba(0,0,0,0.08);
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    pointer-events: none;
+    padding: calc(var(--video-section-padding) / 2) 1rem var(--video-section-padding);
+    min-height: unset;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+}
+
+[data-theme="dark"] .video-presentation-ui-bg {
+    background: rgba(44, 38, 34, 0.8); /* Translucent dark backdrop */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    /* Optionally, use: background: var(--dark-bg, rgba(44, 38, 34, 0.97)); */
+    /* Keep border-radius and box-shadow same as light mode for consistency */
+    /* Remove display:none to ensure it shows in dark mode */
+}
+
+.video-presentation-section.visible .video-presentation-ui-bg {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto; /* Enable interactions on video UI background when visible */
+}
+
+.video-text-content,
+.video-players-container {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 900px) {
+    .video-presentation-ui-bg {
+        max-width: 98vw;
+        padding: 6px 8px 24px 8px; /* Fixed reduction: top padding from 32px to 6px */
+    }
+}
+@media (max-width: 600px) {
+    .video-presentation-ui-bg {
+        border-radius: 18px;
+        padding: 4px 2vw 12px 2vw; /* Fixed reduction: top padding from 18px to 4px */
+    }
+}
+
+/* Hide hero section when video UI is active */
+body.video-open .hero-section-container {
+    max-height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Video Prompt Section - Mobile-optimized and positioned outside hero */
+.video-prompt-section {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    opacity: 0;
+    animation: fadeInVideoPrompt 1.2s ease 1.5s forwards;
+    z-index: 5;
+    position: relative;
+}
+
+.video-prompt-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap; /* Keep text on single line by default */
+    flex-wrap: nowrap; /* Prevent wrapping of flex items */
+    user-select: none; /* Prevent text selection */
+    outline: none; /* Remove default outline */
+    position: relative;
+    overflow: hidden;
+}
+
+.video-prompt-banner:hover {
+    background-color: rgba(0, 0, 0, 0.85);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.video-prompt-banner:active {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.1s ease;
+}
+
+/* Add a subtle pulse effect for better button feel */
+.video-prompt-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s ease;
+    border-radius: inherit;
+}
+
+.video-prompt-banner:hover::before {
+    transform: translateX(100%);
+}
+
+/* Focus state for accessibility */
+.video-prompt-banner:focus {
+    outline: 2px solid var(--gold-main);
+    outline-offset: 2px;
+}
+
+.video-prompt-text {
+    font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    margin: 0;
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0; /* Prevent text from shrinking */
+}
+
+.video-prompt-text::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-main), var(--gold-light));
+    transition: width 0.4s ease;
+    border-radius: 1px;
+}
+
+.video-prompt-banner:hover .video-prompt-text::after {
+    width: 100%;
+}
+
+.video-prompt-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    animation: pulsePromptArrow 2s ease-in-out infinite;
+    flex-shrink: 0; /* Prevent arrow from shrinking */
+}
+
+.video-prompt-arrow svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    transition: transform 0.3s ease;
+}
+
+@keyframes fadeInVideoPrompt {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes highlightPrompt {
+    0%, 100% { background-color: rgba(0, 0, 0, 0.75); }
+    50% { background-color: rgba(0, 0, 0, 0.85); }
+}
+
+@keyframes pulsePromptArrow {
+    0%, 100% { 
+        transform: scale(1); 
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    50% { 
+        transform: scale(1.1); 
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+.video-prompt-banner:hover .video-prompt-arrow {
+    background-color: rgba(255, 255, 255, 0.2);
+    animation: bouncePromptArrow 0.6s ease;
+}
+
+.video-prompt-banner:active .video-prompt-arrow {
+    animation: clickBounceArrow 0.3s ease;
+}
+
+.video-prompt-banner:active .video-prompt-arrow svg {
+    transform: scale(1.2) translateY(2px);
+}
+
+@keyframes clickBounceArrow {
+    0% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.15) translateY(-2px); }
+    100% { transform: scale(1) translateY(0); }
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .video-prompt-banner {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .video-prompt-banner:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile adjustments - bring closer to hero and maintain single line */
+@media (max-width: 768px) {
+    .video-prompt-section {
+        padding: 8px 15px; /* Reduced from 10px 15px to bring closer to hero */
+    }
+    
+    .video-prompt-banner {
+        padding: 8px 16px;
+        gap: 10px; /* Slightly reduced gap */
+        border-radius: 18px; /* Slightly smaller border radius */
+    }
+    
+    .video-prompt-text {
+        font-size: clamp(0.85rem, 2vw, 1rem);
+        letter-spacing: 0.2px;
+    }
+    
+    .video-prompt-arrow {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .video-prompt-arrow svg {
+        width: 12px;
+        height: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .video-prompt-section {
+        padding: 5px 12px; /* Further reduced to bring even closer to hero */
+    }
+    
+    .video-prompt-banner {
+        padding: 6px 14px;
+        gap: 8px;
+        border-radius: 16px;
+        /* Still keep nowrap - only very small screens will wrap */
+    }
+    
+    .video-prompt-text {
+        font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+    }
+    
+    .video-prompt-arrow {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .video-prompt-arrow svg {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* Only on very small screens (narrow phones), allow text wrapping if absolutely necessary */
+@media (max-width: 320px) {
+    .video-prompt-banner {
+        white-space: normal; /* Allow wrapping only on very small screens */
+        flex-wrap: wrap; /* Allow flex items to wrap if needed */
+        text-align: center;
+        line-height: 1.2;
+    }
+    
+    .video-prompt-text {
+        font-size: 0.75rem;
+        line-height: 1.3;
+    }
+}
+
+/* Hide video prompt section when site is expanding */
+body.site-expanding .video-prompt-section {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(-10px) !important;
+    transition: all 0.4s ease !important;
+}
+
+/* Hide video prompt section when video is open */
+body.video-open .video-prompt-section {
+    display: none !important;
+}
+
+/* Enhanced small video section with musical listening banner */
+.small-video-section {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    width: 100%;
+    max-width: min(900px, 80vw); /* Responsive max-width to prevent overflow on any screen */
+    position: relative;
+    align-self: center; /* Center the entire section */
+    justify-content: center; /* Center content within the section */
+    margin: 0 auto; /* Additional centering */
+}
+
+.small-video-section .video-player.small-video {
+    flex: 0 0 400px; /* Fixed width instead of percentage to prevent compression */
+    max-width: 400px; /* Match original max-width */
+    min-width: 320px; /* Ensure minimum visible width */
+    align-self: flex-start; /* Override parent alignment */
+}
+
+/* Musical Listening Banner */
+.musical-listening-banner {
+    flex: 0 0 260px; /* Slightly smaller fixed width to give video more space */
+    background: linear-gradient(135deg, 
+        rgba(var(--gold-rgb), 0.08) 0%, 
+        rgba(var(--gold-rgb), 0.15) 50%, 
+        rgba(var(--gold-rgb), 0.08) 100%);
+    border: 2px solid var(--gold-main);
+    border-radius: var(--video-border-radius);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: visible; /* Changed to visible for pointer */
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.8s ease-out 1.2s, 
+                transform 0.8s ease-out 1.2s,
+                box-shadow 0.3s ease,
+                border-color 0.3s ease;
+    box-shadow: 0 8px 25px rgba(var(--gold-rgb), 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* Visual pointer connecting banner to video */
+.musical-listening-banner::before {
+    content: '';
+    position: absolute;
+    left: -12px; /* Position to point towards the video */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    border-right: 12px solid var(--gold-main);
+    opacity: 0;
+    transition: opacity 0.5s ease-out 1.8s; /* Delayed appearance */
+    filter: drop-shadow(0 2px 4px rgba(var(--gold-rgb), 0.3));
+}
+
+.video-presentation-section.visible .musical-listening-banner::before {
+    opacity: 1;
+}
+
+.video-presentation-section.visible .musical-listening-banner {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.musical-listening-banner:hover {
+    box-shadow: 0 12px 35px rgba(var(--gold-rgb), 0.25);
+    border-color: var(--gold-light);
+    background: linear-gradient(135deg, 
+        rgba(var(--gold-rgb), 0.12) 0%, 
+        rgba(var(--gold-rgb), 0.20) 50%, 
+        rgba(var(--gold-rgb), 0.12) 100%);
+}
+
+.musical-listening-banner:hover::before {
+    border-right-color: var(--gold-light);
+    filter: drop-shadow(0 2px 6px rgba(var(--gold-rgb), 0.5));
+}
+
+/* Subtle connecting effect between video and banner */
+.small-video-section .video-player.small-video:hover ~ .musical-listening-banner {
+    border-color: var(--gold-light);
+    box-shadow: 0 10px 30px rgba(var(--gold-rgb), 0.2);
+}
+
+.small-video-section .video-player.small-video:hover ~ .musical-listening-banner::before {
+    border-right-color: var(--gold-light);
+    filter: drop-shadow(0 2px 6px rgba(var(--gold-rgb), 0.5));
+}
+
+.musical-banner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    width: 100%;
+    z-index: 1;
+    position: relative;
+}
+
+/* Speaker Icon Container */
+.speaker-icon-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.speaker-icon {
+    width: 48px;
+    height: 48px;
+    color: var(--gold-main);
+    filter: drop-shadow(0 2px 4px rgba(var(--gold-rgb), 0.3));
+    transition: transform 0.3s ease, color 0.3s ease;
+    animation: speakerPulse 3s ease-in-out infinite;
+}
+
+.musical-listening-banner:hover .speaker-icon {
+    transform: scale(1.1);
+    color: var(--gold-light);
+    animation-duration: 2s; /* Faster pulse on hover */
+}
+
+@keyframes speakerPulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 2px 4px rgba(var(--gold-rgb), 0.3));
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 4px 8px rgba(var(--gold-rgb), 0.5));
+    }
+}
+
+/* Animated Musical Notes from Speaker */
+.speaker-notes-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120px;
+    height: 120px;
+    pointer-events: none;
+}
+
+.speaker-note {
+    position: absolute;
+    font-size: 16px;
+    color: var(--gold-main);
+    opacity: 0;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    will-change: transform, opacity;
+}
+
+.speaker-note.note-1 {
+    top: 50%;
+    left: 50%;
+    animation: floatNote1 4s ease-out infinite;
+    animation-delay: 0s;
+}
+
+.speaker-note.note-2 {
+    top: 50%;
+    left: 50%;
+    animation: floatNote2 4.5s ease-out infinite;
+    animation-delay: 0.8s;
+}
+
+.speaker-note.note-3 {
+    top: 50%;
+    left: 50%;
+    animation: floatNote3 3.8s ease-out infinite;
+    animation-delay: 1.6s;
+}
+
+.speaker-note.note-4 {
+    top: 50%;
+    left: 50%;
+    animation: floatNote4 4.2s ease-out infinite;
+    animation-delay: 2.4s;
+}
+
+.speaker-note.note-5 {
+    top: 50%;
+    left: 50%;
+    animation: floatNote5 3.6s ease-out infinite;
+    animation-delay: 3.2s;
+}
+
+/* Musical Note Animation Keyframes */
+@keyframes floatNote1 {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.8);
+        opacity: 0;
+    }
+    15% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    85% {
+        transform: translate(-50%, -50%) translate(45px, -35px) scale(0.6) rotate(15deg);
+        opacity: 0.7;
+    }
+    100% {
+        transform: translate(-50%, -50%) translate(65px, -50px) scale(0.3) rotate(25deg);
+        opacity: 0;
+    }
+}
+
+@keyframes floatNote2 {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.7);
+        opacity: 0;
+    }
+    15% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    85% {
+        transform: translate(-50%, -50%) translate(-40px, -25px) scale(0.5) rotate(-12deg);
+        opacity: 0.6;
+    }
+    100% {
+        transform: translate(-50%, -50%) translate(-60px, -40px) scale(0.2) rotate(-20deg);
+        opacity: 0;
+    }
+}
+
+@keyframes floatNote3 {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.9);
+        opacity: 0;
+    }
+    15% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    85% {
+        transform: translate(-50%, -50%) translate(25px, 30px) scale(0.7) rotate(-8deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translate(-50%, -50%) translate(35px, 45px) scale(0.4) rotate(-15deg);
+        opacity: 0;
+    }
+}
+
+@keyframes floatNote4 {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.6);
+        opacity: 0;
+    }
+    15% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    85% {
+        transform: translate(-50%, -50%) translate(-30px, 35px) scale(0.6) rotate(18deg);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translate(-50%, -50%) translate(-45px, 50px) scale(0.3) rotate(30deg);
+        opacity: 0;
+    }
+}
+
+@keyframes floatNote5 {
+    0% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(0.8);
+        opacity: 0;
+    }
+    15% {
+        transform: translate(-50%, -50%) translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    85% {
+        transform: translate(-50%, -50%) translate(50px, 10px) scale(0.5) rotate(10deg);
+        opacity: 0.6;
+    }
+    100% {
+        transform: translate(-50%, -50%) translate(70px, 15px) scale(0.2) rotate(20deg);
+        opacity: 0;
+    }
+}
+
+/* Banner Text Styling */
+.musical-banner-text {
+    width: 100%;
+    z-index: 2;
+}
+
+.musical-banner-title {
+    font-family: var(--heading-font);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold-main);
+    margin: 0 0 8px 0;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.6s ease-out 1.8s, transform 0.6s ease-out 1.8s;
+}
+
+.video-presentation-section.visible .musical-banner-title {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.musical-banner-description {
+    font-family: var(--primary-font);
+    font-size: 0.9rem;
+    color: var(--text-subtle-color);
+    margin: 0;
+    line-height: 1.4;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.6s ease-out 2.1s, transform 0.6s ease-out 2.1s;
+}
+
+.video-presentation-section.visible .musical-banner-description {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Dark mode adjustments for the banner */
+[data-theme="dark"] .musical-listening-banner {
+    background: linear-gradient(135deg, 
+        rgba(var(--gold-rgb), 0.12) 0%, 
+        rgba(var(--gold-rgb), 0.20) 50%, 
+        rgba(var(--gold-rgb), 0.12) 100%);
+    border-color: rgba(var(--gold-rgb), 0.6);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .musical-listening-banner:hover {
+    background: linear-gradient(135deg, 
+        rgba(var(--gold-rgb), 0.18) 0%, 
+        rgba(var(--gold-rgb), 0.25) 50%, 
+        rgba(var(--gold-rgb), 0.18) 100%);
+    border-color: var(--gold-main);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .small-video-section {
+        max-width: 800px; /* Further reduce on smaller screens */
+        gap: 16px; /* Tighter gap */
+    }
+    
+    .small-video-section .video-player.small-video {
+        flex: 0 0 350px; /* Smaller but still reasonable video size */
+        min-width: 300px;
+        aspect-ratio: var(--small-video-aspect-ratio); /* Maintain aspect ratio */
+    }
+    
+    .musical-listening-banner {
+        flex: 0 0 240px; /* Even smaller banner */
+        padding: 20px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .small-video-section {
+        max-width: 700px;
+        gap: 14px;
+    }
+    
+    .small-video-section .video-player.small-video {
+        flex: 0 0 320px;
+        min-width: 280px;
+        aspect-ratio: var(--small-video-aspect-ratio); /* Maintain aspect ratio */
+    }
+    
+    .musical-listening-banner {
+        flex: 0 0 220px;
+        padding: 18px;
+    }
+    
+    .speaker-icon {
+        width: 42px;
+        height: 42px;
+    }
+    
+    .musical-banner-title {
+        font-size: 1.2rem;
+    }
+    
+    .musical-banner-description {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .small-video-section {
+        flex-direction: column;
+        gap: 16px;
+        margin-right: 0; /* Remove right margin on mobile */
+        align-self: center; /* Center on mobile */
+        max-width: 95%; /* Give more space on mobile */
+    }
+    
+    .small-video-section .video-player.small-video {
+        flex: none; /* Remove flex constraints */
+        width: 100%; /* Full width on mobile */
+        max-width: 500px; /* Reasonable max width */
+        min-width: unset; /* Remove min-width constraint */
+        aspect-ratio: var(--small-video-aspect-ratio); /* Ensure proper aspect ratio */
+    }
+    
+    .musical-listening-banner {
+        flex: none;
+        width: 100%;
+        padding: 20px;
+        flex-direction: row;
+    }
+    
+    /* Change pointer direction for mobile */
+    .musical-listening-banner::before {
+        left: 50%;
+        top: -12px;
+        transform: translateX(-50%);
+        border-top: none;
+        border-bottom: 12px solid var(--gold-main);
+        border-left: 12px solid transparent;
+        border-right: 12px solid transparent;
+    }
+    
+    .musical-banner-content {
+        flex-direction: row;
+        text-align: left;
+        gap: 20px;
+    }
+    
+    .speaker-icon-container {
+        flex: 0 0 auto;
+        margin-bottom: 0;
+    }
+    
+    .musical-banner-text {
+        flex: 1;
+    }
+    
+    .musical-banner-title {
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+    }
+    
+    .musical-banner-description {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .small-video-section .video-player.small-video {
+        max-width: 100%; /* Full width on very small screens */
+        aspect-ratio: var(--small-video-aspect-ratio); /* Maintain aspect ratio */
+    }
+    
+    .musical-listening-banner {
+        padding: 16px;
+    }
+    
+    .musical-banner-content {
+        gap: 16px;
+    }
+    
+    .speaker-icon {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .speaker-notes-container {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .speaker-note {
+        font-size: 14px;
+    }
+    
+    .musical-banner-title {
+        font-size: 1rem;
+    }
+    
+    .musical-banner-description {
+        font-size: 0.75rem;
+    }
+} 

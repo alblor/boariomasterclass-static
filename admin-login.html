@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - BoarioMasterclass</title>
+    
+    <!-- Immediate theme application to prevent flash -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('boarioMasterclassTheme');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .login-container {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 2rem;
+            background: var(--bar-bg-color);
+            border-radius: var(--bar-border-radius);
+            border: var(--bar-contour-thickness) solid var(--gold-main);
+            box-shadow: 0 6px 18px var(--shadow-color);
+        }
+        
+        .login-title {
+            color: var(--gold-main);
+            font-family: var(--heading-font);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .login-step {
+            display: none;
+        }
+        
+        .login-step.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--gold-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-color);
+            color: var(--text-color);
+            box-sizing: border-box;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--gold-main);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold-main) 30%, transparent);
+        }
+        
+        .login-btn {
+            background: var(--gold-main);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            width: 100%;
+        }
+        
+        .login-btn:hover:not(:disabled) {
+            background: var(--gold-dark);
+            transform: translateY(-2px);
+        }
+        
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            margin-top: 1rem;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .token-display {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid var(--gold-main);
+            text-align: center;
+        }
+        
+        .token-digits {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--gold-main);
+            letter-spacing: 8px;
+            margin: 10px 0;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--gold-main);
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Sleek Logo Circle Design */
+        .logo-circle-container {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            z-index: 1000;
+            display: flex;
+            gap: 15px;
+            opacity: 0;
+            animation: fadeInSlowly 1.2s ease-out 0.3s forwards;
+        }
+        
+        @keyframes fadeInSlowly {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo-circle {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: var(--bar-bg-color);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 2px solid var(--gold-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 8px 24px var(--shadow-color);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--gold-main) 0%, var(--gold-light) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 50%;
+        }
+        
+        .logo-circle:hover {
+            transform: scale(1.1);
+            border-color: var(--gold-light);
+            box-shadow: 0 12px 32px var(--shadow-color), 0 0 0 4px rgba(196, 168, 107, 0.2);
+        }
+        
+        .logo-circle:hover::before {
+            opacity: 0.1;
+        }
+        
+        .logo-image {
+            width: 42px;
+            height: 42px;
+            z-index: 1;
+            transition: transform 0.3s ease;
+            filter: brightness(0) saturate(100%) invert(60%) sepia(13%) saturate(1487%) hue-rotate(358deg) brightness(90%) contrast(88%);
+        }
+        
+        .logo-circle:hover .logo-image {
+            transform: scale(1.05);
+        }
+        
+        .theme-toggle-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--bar-bg-color);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 2px solid var(--gold-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 20px var(--shadow-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .theme-toggle-circle:hover {
+            transform: scale(1.05);
+            border-color: var(--gold-main);
+            box-shadow: 0 8px 24px var(--shadow-color), 0 0 0 3px rgba(196, 168, 107, 0.15);
+        }
+        
+        .theme-toggle-circle img {
+            width: 26px;
+            height: 26px;
+            transition: all 0.3s ease;
+            position: absolute;
+            filter: brightness(0) saturate(100%) invert(60%) sepia(13%) saturate(1487%) hue-rotate(358deg) brightness(90%) contrast(88%);
+        }
+        
+        .theme-sun-icon {
+            opacity: 0;
+        }
+        
+        .theme-moon-icon {
+            opacity: 1;
+        }
+        
+        [data-theme="dark"] .theme-sun-icon {
+            opacity: 1;
+        }
+        
+        [data-theme="dark"] .theme-moon-icon {
+            opacity: 0;
+        }
+        
+        /* Enhanced dark mode visibility */
+        [data-theme="dark"] .theme-toggle-circle {
+            border-color: var(--gold-main);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        [data-theme="dark"] .theme-toggle-circle img {
+            filter: brightness(0) saturate(100%) invert(90%) sepia(10%) saturate(200%) hue-rotate(20deg) brightness(110%) contrast(90%);
+        }
+        
+        [data-theme="dark"] .logo-circle {
+            border-color: var(--gold-light);
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        [data-theme="dark"] .logo-image {
+            filter: brightness(0) saturate(100%) invert(90%) sepia(10%) saturate(200%) hue-rotate(20deg) brightness(110%) contrast(90%);
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .logo-circle-container {
+                top: 20px;
+                left: 20px;
+                gap: 10px;
+            }
+            
+            .logo-circle {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .logo-image {
+                width: 34px;
+                height: 34px;
+            }
+            
+            .theme-toggle-circle {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .theme-toggle-circle img {
+                width: 22px;
+                height: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-background"></div>
+    
+    <!-- Sleek Logo Circle -->
+    <div class="logo-circle-container">
+        <a href="/" class="logo-circle" aria-label="Torna alla home">
+            <img src="/logo.svg" alt="BoarioMasterclass" class="logo-image">
+        </a>
+        <button id="theme-toggle-btn" class="theme-toggle-circle" aria-label="Cambia tema">
+            <img src="/images/svgs/sun-icon.svg" alt="Light" class="theme-sun-icon">
+            <img src="/images/svgs/moon-icon.svg" alt="Dark" class="theme-moon-icon">
+        </button>
+    </div>
+
+    <div class="site-container">
+        <div class="login-container">
+            <h1 class="login-title">🔐 Accesso Admin</h1>
+            
+            <!-- Step 1: Request Token -->
+            <div id="step1" class="login-step active">
+                <p style="text-align: center; margin-bottom: 2rem; color: var(--text-subtle-color);">
+                    Inserisci la tua email per ricevere un codice di accesso sicuro
+                </p>
+                
+                <form id="request-token-form">
+                    <div class="form-group">
+                        <label for="admin-email">Email Admin:</label>
+                        <input type="email" id="admin-email" name="email" required 
+                               placeholder="me@albaneselorenzo.com">
+                    </div>
+                    <button type="submit" class="login-btn" id="request-btn">
+                        📧 Richiedi Codice di Accesso
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Step 2: Enter Token -->
+            <div id="step2" class="login-step">
+                <p style="text-align: center; margin-bottom: 2rem; color: var(--text-subtle-color);">
+                    Inserisci il codice a 6 cifre ricevuto via email
+                </p>
+                
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="admin-email-confirm">Email Admin:</label>
+                        <input type="email" id="admin-email-confirm" name="email" required readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-token">Codice di Accesso (6 cifre):</label>
+                        <input type="text" id="login-token" name="token" required 
+                               placeholder="123456" maxlength="6" pattern="[0-9]{6}">
+                    </div>
+                    <button type="submit" class="login-btn" id="login-btn">
+                        🚀 Accedi alla Dashboard
+                    </button>
+                </form>
+                
+                <a href="#" id="back-to-request" class="back-link">
+                    ← Richiedi nuovo codice
+                </a>
+            </div>
+            
+            <div id="message"></div>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK for Cloud Functions -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+    
+    <script>
+        // Firebase configuration
+        // Environment detection for emulator vs production
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.port === '5002';
+        
+        const firebaseConfig = {
+            apiKey: isLocalhost ? "demo-api-key" : "AIzaSyC6CkmL27m8yA3dBs0XZZXyn4jMzMI1yc",
+            authDomain: "boariomasterclass-web.firebaseapp.com", 
+            projectId: "boariomasterclass-web",
+            storageBucket: "boariomasterclass-web.appspot.com",
+            messagingSenderId: "821294767604",
+            appId: isLocalhost ? "1:821294767604:web:demo-app-id" : "1:821294767604:web:boario-web-app"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const functions = firebase.app().functions('europe-west3');
+        
+        // Configure emulator connection if in development mode
+        if (isLocalhost) {
+            console.log('🛠️ Development mode: Connecting to Firebase emulators');
+            functions.useEmulator('localhost', 5001);
+        } else {
+            console.log('🚀 Production mode: Connecting to Firebase services in europe-west3');
+        }
+
+        // Get DOM elements
+        const step1 = document.getElementById('step1');
+        const step2 = document.getElementById('step2');
+        const messageEl = document.getElementById('message');
+        const requestForm = document.getElementById('request-token-form');
+        const loginForm = document.getElementById('login-form');
+        const requestBtn = document.getElementById('request-btn');
+        const loginBtn = document.getElementById('login-btn');
+        const backToRequest = document.getElementById('back-to-request');
+
+        // Show message function
+        function showMessage(text, type = 'info') {
+            messageEl.innerHTML = `<div class="message ${type}">${text}</div>`;
+        }
+
+        // Clear message function
+        function clearMessage() {
+            messageEl.innerHTML = '';
+        }
+
+        // Switch to step 2
+        function goToStep2(email) {
+            step1.classList.remove('active');
+            step2.classList.add('active');
+            document.getElementById('admin-email-confirm').value = email;
+        }
+
+        // Switch to step 1
+        function goToStep1() {
+            step2.classList.remove('active');
+            step1.classList.add('active');
+            clearMessage();
+        }
+
+        // Request token form handler
+        requestForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('admin-email').value.trim();
+            requestBtn.disabled = true;
+            requestBtn.textContent = '📧 Invio in corso...';
+            clearMessage();
+            
+            try {
+                // In emulator mode, get real token for testing
+                if (isLocalhost) {
+                    try {
+                        const getAdminToken = functions.httpsCallable('getAdminToken');
+                        const tokenResult = await getAdminToken({ email });
+                        
+                        if (tokenResult.data.success) {
+                            const token = tokenResult.data.token;
+                            showMessage(`🔧 MODALITÀ SVILUPPO: Il codice è "${token}" per ${email}`, 'info');
+                            goToStep2(email);
+                        } else {
+                            showMessage('❌ Nessun token attivo trovato. Richiedi prima un nuovo token.', 'error');
+                        }
+                    } catch (error) {
+                        // Fallback: request new token
+                        console.log('Getting existing token failed, requesting new one:', error);
+                        const requestAdminToken = functions.httpsCallable('requestAdminToken');
+                        const result = await requestAdminToken({ email });
+                        
+                        if (result.data.success) {
+                            // Get the token that was just created
+                            const getAdminToken = functions.httpsCallable('getAdminToken');
+                            const tokenResult = await getAdminToken({ email });
+                            const token = tokenResult.data.token;
+                            showMessage(`🔧 MODALITÀ SVILUPPO: Nuovo codice generato "${token}" per ${email}`, 'info');
+                            goToStep2(email);
+                        } else {
+                            showMessage('❌ Errore nella generazione del token di sviluppo', 'error');
+                        }
+                    }
+                    return;
+                }
+                
+                // Production mode: Request token via Cloud Function
+                const requestAdminToken = functions.httpsCallable('requestAdminToken');
+                const result = await requestAdminToken({ email });
+                
+                if (result.data.success) {
+                    showMessage(`✅ ${result.data.message}`, 'success');
+                    goToStep2(email);
+                } else {
+                    showMessage(`❌ Errore: ${result.data.message}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Token request error:', error);
+                showMessage(`❌ Errore di connessione: ${error.message}`, 'error');
+            } finally {
+                requestBtn.disabled = false;
+                requestBtn.textContent = '📧 Richiedi Codice di Accesso';
+            }
+        });
+
+        // Login form handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('admin-email-confirm').value;
+            const token = document.getElementById('login-token').value.trim();
+            
+            if (token.length !== 6 || !/^[0-9]{6}$/.test(token)) {
+                showMessage('❌ Il codice deve essere di 6 cifre numeriche', 'error');
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = '🚀 Accesso in corso...';
+            clearMessage();
+            
+            try {
+                // In emulator mode, validate against real token
+                if (isLocalhost) {
+                    try {
+                        const adminLogin = functions.httpsCallable('adminLogin');
+                        const result = await adminLogin({ email, token });
+                        
+                        if (result.data.success) {
+                            // Store session token for emulator too
+                            localStorage.setItem('adminSessionToken', result.data.sessionToken);
+                            localStorage.setItem('adminUser', JSON.stringify(result.data.adminUser));
+                            
+                            showMessage('✅ Accesso riuscito! Reindirizzamento...', 'success');
+                            setTimeout(() => {
+                                window.location.href = `admin.html?admin=${encodeURIComponent(email)}`;
+                            }, 1500);
+                        } else {
+                            showMessage('❌ Token non valido o scaduto', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Emulator login error:', error);
+                        showMessage(`❌ Errore di login: ${error.message}`, 'error');
+                    }
+                    return;
+                }
+                
+                // Production mode: Login via Cloud Function
+                const adminLogin = functions.httpsCallable('adminLogin');
+                const result = await adminLogin({ email, token });
+                
+                if (result.data.success) {
+                    // Store session token
+                    localStorage.setItem('adminSessionToken', result.data.sessionToken);
+                    localStorage.setItem('adminUser', JSON.stringify(result.data.adminUser));
+                    
+                    showMessage(`✅ ${result.data.message} Reindirizzamento...`, 'success');
+                    
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1500);
+                } else {
+                    showMessage(`❌ Errore: ${result.data.message}`, 'error');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                let errorMessage = 'Errore di connessione';
+                
+                if (error.code === 'permission-denied') {
+                    errorMessage = 'Codice non valido o scaduto';
+                } else if (error.code === 'resource-exhausted') {
+                    errorMessage = 'Troppi tentativi di accesso. Riprova più tardi.';
+                } else if (error.code === 'invalid-argument') {
+                    errorMessage = 'Dati non validi. Verifica email e codice.';
+                } else if (error.message) {
+                    // Translate common English error messages
+                    if (error.message.includes('Too many')) {
+                        errorMessage = 'Troppi tentativi. Riprova più tardi.';
+                    } else if (error.message.includes('Invalid') || error.message.includes('invalid')) {
+                        errorMessage = 'Dati non validi';
+                    } else if (error.message.includes('expired') || error.message.includes('Expired')) {
+                        errorMessage = 'Codice scaduto';
+                    } else if (error.message.includes('Network') || error.message.includes('network')) {
+                        errorMessage = 'Errore di rete. Verifica la connessione.';
+                    } else {
+                        errorMessage = error.message;
+                    }
+                }
+                
+                showMessage(`❌ ${errorMessage}`, 'error');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🚀 Accedi alla Dashboard';
+            }
+        });
+
+        // Back to request handler
+        backToRequest.addEventListener('click', (e) => {
+            e.preventDefault();
+            goToStep1();
+        });
+
+        // Auto-focus token input when step 2 is shown
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.target === step2 && step2.classList.contains('active')) {
+                    setTimeout(() => {
+                        document.getElementById('login-token').focus();
+                    }, 100);
+                }
+            });
+        });
+        
+        observer.observe(step2, { attributes: true, attributeFilter: ['class'] });
+
+        // Theme toggle functionality
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const themeIconSun = themeToggleBtn ? themeToggleBtn.querySelector('.theme-sun-icon') : null;
+        const themeIconMoon = themeToggleBtn ? themeToggleBtn.querySelector('.theme-moon-icon') : null;
+        const htmlElement = document.documentElement;
+
+        function updateThemeIcons(theme) {
+            if (themeIconSun && themeIconMoon) {
+                // Theme icons are now handled via CSS classes, no need for inline styles
+                // The CSS will automatically show/hide icons based on [data-theme] attribute
+            }
+        }
+
+        function applyTheme(theme) {
+            htmlElement.setAttribute('data-theme', theme);
+            updateThemeIcons(theme);
+            localStorage.setItem('boarioMasterclassTheme', theme);
+        }
+
+        if (themeToggleBtn) {
+            const savedTheme = localStorage.getItem('boarioMasterclassTheme');
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+            themeToggleBtn.addEventListener('click', () => {
+                applyTheme(htmlElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+            });
+        }
+    </script>
+</body>
+</html> 
